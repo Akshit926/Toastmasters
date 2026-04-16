@@ -1,0 +1,614 @@
+/* ========================================
+   WHAT TO EXPECT PAGE STYLES
+   ======================================== */
+
+/* ── Variable Bridge: map old vars to new design system ── */
+:root {
+    --blue:         #003366;
+    --maroon:       #C0392B;
+    --accent:       #D4A017;
+    --bg-primary:   var(--bg-body);
+    --bg-secondary: var(--bg-subtle);
+    --card-bg:      var(--bg-surface);
+    --text-main:    var(--text-primary);
+    --text-muted:   var(--text-muted);
+    --border-color: var(--border);
+}
+
+[data-theme="dark"] {
+    --blue:         #5BA0E9;
+    --maroon:       #E07060;
+    --accent:       #F0C040;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+/* Keyframes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes heroSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.7);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes timelineGrow {
+    from {
+        transform: scaleY(0);
+    }
+    to {
+        transform: scaleY(1);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 4px 12px rgba(0, 65, 101, 0.3); }
+    50% { box-shadow: 0 4px 20px rgba(0, 65, 101, 0.55); }
+}
+
+/* Hero entrance animation (plays on load) */
+.wte-hero h1 {
+    animation: heroSlideDown 0.8s ease-out both;
+}
+
+.wte-hero p {
+    animation: heroSlideDown 0.8s ease-out 0.2s both;
+}
+
+/* Scroll-reveal base state: hidden until visible */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Stagger delays for children */
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+.reveal-delay-6 { transition-delay: 0.6s; }
+.reveal-delay-7 { transition-delay: 0.7s; }
+.reveal-delay-8 { transition-delay: 0.8s; }
+
+/* Slide from left variant */
+.reveal-left {
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Slide from right variant */
+.reveal-right {
+    opacity: 0;
+    transform: translateX(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.reveal-right.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Scale-in variant */
+.reveal-scale {
+    opacity: 0;
+    transform: scale(0.8);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.reveal-scale.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Timeline line grows in */
+.timeline.visible::before {
+    animation: timelineGrow 1.2s ease-out both;
+    transform-origin: top;
+}
+
+/* Timeline marker gentle pulse when visible */
+.timeline.visible .timeline-marker {
+    animation: pulse 2.5s ease-in-out infinite;
+}
+
+/* HERO */
+.wte-hero {
+    height: 50vh;
+    min-height: 350px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--blue), var(--maroon));
+    color: white;
+}
+
+.wte-hero h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 800;
+    margin-bottom: 15px;
+}
+
+.wte-hero h1 span {
+    color: var(--accent);
+}
+
+.wte-hero p {
+    font-size: clamp(0.95rem, 2vw, 1.15rem);
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* INTRO SECTION */
+.wte-intro {
+    padding: 100px 8%;
+    background: var(--bg-primary);
+}
+
+.intro-container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.intro-container h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.5rem;
+    color: var(--blue);
+    margin: 10px 0 40px;
+}
+
+.intro-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 50px;
+    align-items: start;
+}
+
+.intro-text p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-main);
+    margin-bottom: 18px;
+}
+
+.intro-highlights {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.highlight-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 25px 15px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.highlight-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--blue);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+}
+
+.highlight-number {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--maroon);
+    margin-bottom: 5px;
+}
+
+.highlight-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+/* MEETING FLOW SECTION */
+.wte-flow {
+    padding: 100px 8%;
+    background: var(--bg-secondary);
+}
+
+.flow-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.flow-container h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.5rem;
+    color: var(--blue);
+    margin: 10px 0 10px;
+}
+
+.flow-subtitle {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    margin-bottom: 50px;
+}
+
+/* TIMELINE */
+.timeline {
+    position: relative;
+    padding-left: 60px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 22px;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, var(--blue), var(--maroon));
+    border-radius: 3px;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 50px;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -60px;
+    top: 0;
+    width: 45px;
+    height: 45px;
+    background: var(--blue);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    z-index: 1;
+    box-shadow: 0 4px 12px rgba(0, 65, 101, 0.3);
+}
+
+.timeline-content {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 30px;
+    transition: 0.3s;
+}
+
+.timeline-content:hover {
+    transform: translateX(5px);
+    border-color: var(--blue);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+}
+
+.timeline-meta {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--maroon);
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.timeline-content h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.3rem;
+    color: var(--blue);
+    margin-bottom: 12px;
+}
+
+.timeline-content p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    line-height: 1.7;
+}
+
+/* ROLES SECTION */
+.wte-roles {
+    padding: 100px 8%;
+    background: var(--bg-primary);
+}
+
+.roles-container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.roles-container h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.5rem;
+    color: var(--blue);
+    margin: 10px 0 10px;
+}
+
+.roles-subtitle {
+    color: var(--text-muted);
+    font-size: 1.05rem;
+    margin-bottom: 50px;
+}
+
+.roles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+}
+
+.role-explain-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 30px;
+    transition: 0.3s;
+}
+
+.role-explain-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--blue);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.07);
+}
+
+.featured-role {
+    background: var(--blue);
+    border-color: transparent;
+    grid-column: 1 / -1;
+}
+
+.role-explain-card.featured-role .role-explain-header h3 {
+    color: var(--accent);
+}
+
+.role-explain-card.featured-role .role-tagline {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.role-explain-card.featured-role p {
+    color: rgba(255, 255, 255, 0.92) !important;
+}
+
+.role-explain-card.featured-role:hover {
+    border-color: transparent;
+    box-shadow: 0 12px 35px rgba(0, 65, 101, 0.35);
+}
+
+.role-explain-header {
+    margin-bottom: 15px;
+}
+
+.role-explain-header h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.2rem;
+    color: var(--blue);
+    margin-bottom: 4px;
+}
+
+.role-tagline {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--maroon);
+    font-weight: 700;
+}
+
+.role-explain-card p {
+    color: var(--text-muted);
+    font-size: 0.93rem;
+    line-height: 1.7;
+}
+
+/* CTA SECTION */
+.wte-cta {
+    padding: 80px 8%;
+    text-align: center;
+    background: linear-gradient(135deg, var(--maroon), var(--blue));
+    color: white;
+}
+
+.cta-container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.cta-container h2 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    margin-bottom: 15px;
+}
+
+.cta-container p {
+    font-size: 1.05rem;
+    opacity: 0.9;
+    margin-bottom: 30px;
+}
+
+.wte-cta .btn-main {
+    background: white;
+    color: var(--blue);
+    padding: 16px 40px;
+    font-size: 1rem;
+    border-radius: 8px;
+}
+
+.wte-cta .btn-main:hover {
+    background: var(--accent);
+    color: #333;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+    .wte-hero {
+        height: 40vh;
+        min-height: 280px;
+    }
+
+    .wte-intro,
+    .wte-flow,
+    .wte-roles {
+        padding: 60px 5%;
+    }
+
+    .intro-container h2,
+    .flow-container h2,
+    .roles-container h2 {
+        font-size: 1.8rem;
+    }
+
+    .intro-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .intro-highlights {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .highlight-card {
+        padding: 18px 10px;
+    }
+
+    .highlight-number {
+        font-size: 1.4rem;
+    }
+
+    .timeline {
+        padding-left: 50px;
+    }
+
+    .timeline::before {
+        left: 17px;
+    }
+
+    .timeline-marker {
+        left: -50px;
+        width: 38px;
+        height: 38px;
+        font-size: 1rem;
+    }
+
+    .timeline-content {
+        padding: 22px;
+    }
+
+    .timeline-content h3 {
+        font-size: 1.1rem;
+    }
+
+    .roles-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .featured-role {
+        grid-column: auto;
+    }
+
+    .role-explain-card {
+        padding: 22px;
+    }
+
+    .wte-cta {
+        padding: 60px 5%;
+    }
+}
+
+@media (max-width: 480px) {
+    .wte-hero {
+        height: 35vh;
+        min-height: 250px;
+    }
+
+    .intro-highlights {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .timeline {
+        padding-left: 45px;
+    }
+
+    .timeline::before {
+        left: 14px;
+    }
+
+    .timeline-marker {
+        left: -45px;
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+}

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role Allocation | Wakad Toastmasters</title>
+    <meta name="description" content="Claim your role for the upcoming Wakad Toastmasters meeting. View available roles, request allocation, and manage your participation.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="roles.css">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="https://www.toastmasters.org/" target="_blank" rel="noopener" class="brand">
+                <img src="tm-logo.png" alt="Toastmasters Logo" class="logo-img">
+                <div class="brand-text">
+                    <span class="club-name">Wakad Toastmasters</span>
+                    <span class="sub-text">Area C2 · District 125</span>
+                </div>
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="what-to-expect.html">What to Expect</a>
+                <a href="roles.html">Role Allocation</a>
+                <a href="form.html" target="_blank" rel="noopener" class="nav-btn">Member Form</a>
+                <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">🌙</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ROLE ALLOCATION HEADER -->
+    <header class="roles-hero">
+        <div class="hero-content">
+            <h1>Role Allocation</h1>
+            <p>Step up, claim a role, and own your speaking journey.</p>
+        </div>
+    </header>
+
+    <!-- ROLE ALLOCATION MAIN PLATFORM -->
+    <main class="allocation-platform">
+
+        <!-- MEETING CONTROLS -->
+        <section class="controls-section">
+            <div class="date-selector">
+                <label for="meetingDate">Select Meeting Date:</label>
+                <select id="meetingDate" onchange="loadRolesForMeeting()">
+                    <!-- Options populated via JS -->
+                </select>
+            </div>
+        </section>
+
+        <!-- DASHBOARD (GRID) -->
+        <section class="dashboard-section" id="rolesDashboard">
+            <!-- Role Cards will be injected here via JS -->
+        </section>
+
+    </main>
+
+    <!-- MODAL FOR CLAIMING/CANCELING A ROLE -->
+    <div id="roleModal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            <h2 id="modalTitle">Claim Role</h2>
+            <p id="modalRoleName" class="modal-role-name">Toastmaster of the Day</p>
+
+            <form id="actionForm" onsubmit="handleFormSubmit(event)">
+                <div class="form-group" id="nameInputGroup">
+                    <label for="memberName">Your Name</label>
+                    <input type="text" id="memberName" placeholder="e.g. John Doe" required>
+                </div>
+
+                <input type="hidden" id="modalActionType"> <!-- 'claim' or 'cancel' -->
+                <input type="hidden" id="modalRoleId">
+
+                <button type="submit" id="modalSubmitBtn" class="btn-card btn-claim modal-btn">Confirm</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <h3>Wakad Toastmasters</h3>
+                    <p style="margin-top: 16px;">Empowering individuals through public speaking and leadership development. Area C2, District 125.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="what-to-expect.html">What to Expect</a></li>
+                        <li><a href="roles.html">Role Allocation</a></li>
+                        <li><a href="form.html" target="_blank" rel="noopener">Member Form</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Connect</h4>
+                    <ul>
+                        <li><a href="https://maps.google.com/?q=Mount+Litera+Zee+School,+Kaspate+Wasti,+Wakad,+Pune" target="_blank">View on Map</a></li>
+                        <li><a href="tel:+917710085710">Contact President</a></li>
+                        <li><a href="tel:+917385297121">Contact VP Education</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2026 Wakad Toastmasters Club. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script src="roles.js"></script>
+    <script>
+        const toggleBtn = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        const saved = localStorage.getItem('tm_theme') || 'light';
+        html.setAttribute('data-theme', saved);
+        toggleBtn.textContent = saved === 'dark' ? '☀️' : '🌙';
+        toggleBtn.addEventListener('click', () => {
+            const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', next);
+            localStorage.setItem('tm_theme', next);
+            toggleBtn.textContent = next === 'dark' ? '☀️' : '🌙';
+        });
+    </script>
+</body>
+
+</html>

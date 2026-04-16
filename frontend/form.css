@@ -1,0 +1,118 @@
+:root {
+    --bg-primary: #fff;
+    --bg-secondary: #f5f5f5;
+    --text-main: #333;
+    --text-muted: #666;
+    --border-color: #ccc;
+    --card-bg: #ffffff;
+    --blue: #004165;
+    --maroon: #772432;
+}
+
+[data-theme="dark"] {
+    --bg-primary: #121212;
+    --bg-secondary: #1e1e1e;
+    --text-main: #e0e0e0;
+    --text-muted: #aaaaaa;
+    --border-color: #333333;
+    --card-bg: #1a1a1a;
+    --blue: #8ab4f8;
+    --maroon: #e67c8e;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: var(--bg-secondary, #f5f5f5);
+    padding: 20px;
+    color: var(--text-main, #333);
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.form-container {
+    max-width: 500px;
+    margin: auto;
+    background: var(--card-bg, #ffffff);
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color, #eee);
+}
+
+h1 {
+    text-align: center;
+    color: var(--blue, #333);
+}
+
+p {
+    text-align: center;
+    color: var(--text-muted, #666);
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color: var(--text-main, #333);
+}
+
+input,
+textarea,
+select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color, #ccc);
+    background: var(--bg-primary, #fff);
+    color: var(--text-main, #333);
+    font-size: 14px;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: var(--blue, #004165);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: var(--maroon, #772432);
+}
+
+.textarea-wrapper {
+    position: relative;
+}
+
+textarea {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.counter {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 12px;
+    color: gray;
+}

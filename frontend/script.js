@@ -1,0 +1,121 @@
+const navbar = document.querySelector('.navbar');
+const navLinks = document.querySelectorAll('.nav-links a');
+const sections = document.querySelectorAll('section[id], header[id]');
+
+function toggleFaq(button) {
+    const item = button.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+
+    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+    if (!isOpen) {
+        item.classList.add('open');
+    }
+}
+
+document.querySelectorAll('.faq-question').forEach(btn => {
+    btn.addEventListener('click', () => toggleFaq(btn));
+});
+
+const contactBtn = document.querySelector('.contact-form button');
+if (contactBtn) {
+    contactBtn.addEventListener('click', async () => {
+        const inputs = document.querySelectorAll('.contact-form input, .contact-form textarea');
+        let allFilled = true;
+
+        inputs.forEach(input => {
+            if (!input.value.trim()) {
+                allFilled = false;
+                input.style.borderColor = 'var(--tm-red)';
+            } else {
+                input.style.borderColor = '';
+            }
+        });
+
+        if (!allFilled) {
+            alert('Please fill in all fields before sending.');
+            return;
+        }
+
+        const data = {
+            name: inputs[0].value.trim(),
+            email: inputs[1].value.trim(),
+            message: `Subject: ${inputs[2].value.trim()}\n\n${inputs[3].value.trim()}`
+        };
+
+        try {
+            const response = await fetch('http://localhost:5000/api/contacts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert('Thank you! Your message has been sent to our new database.');
+                inputs.forEach(input => input.value = '');
+            } else {
+                alert('Server error, please try again.');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Backend not reachable! Have you started the server with "npm run dev"?');
+        }
+    });
+}
+
+const themeToggleBtn = document.getElementById('themeToggle');
+const html = document.documentElement;
+let currentTheme = localStorage.getItem('tm_theme');
+if (!currentTheme) {
+    currentTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+html.setAttribute('data-theme', currentTheme);
+if (themeToggleBtn) {
+    themeToggleBtn.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+    themeToggleBtn.addEventListener('click', () => {
+        const nextTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', nextTheme);
+        localStorage.setItem('tm_theme', nextTheme);
+        themeToggleBtn.textContent = nextTheme === 'dark' ? '☀️' : '🌙';
+    });
+}
+
+const revealEls = document.querySelectorAll('.reveal-on-scroll');
+const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            revealObserver.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.08, rootMargin: '0px 0px -10px 0px' });
+
+revealEls.forEach(el => revealObserver.observe(el));
+
+let lastScroll = 0;
+if (navbar) {
+    window.addEventListener('scroll', () => {
+        const currentScroll = window.pageYOffset;
+        if (currentScroll > lastScroll && currentScroll > 100) {
+            navbar.style.transform = 'translateY(-100%)';
+            navbar.style.transition = 'transform 0.3s ease';
+        } else {
+            navbar.style.transform = 'translateY(0)';
+        }
+        lastScroll = currentScroll;
+
+        let currentSection = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop - 100;
+            if (window.pageYOffset >= sectionTop) {
+                currentSection = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.style.color = '';
+            if (link.getAttribute('href') === '#' + currentSection) {
+                link.style.color = '#772432';
+            }
+        });
+    });
+}
