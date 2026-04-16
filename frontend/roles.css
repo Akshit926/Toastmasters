@@ -220,28 +220,49 @@
 
 .role-footer {
     display: flex;
-    gap: 10px;
-    align-items: center;
-    min-height: 60px;
+    flex-direction: column;   /* IMPORTANT */
+    gap: 8px;
+    align-items: stretch;
     padding-top: 12px;
 }
 
+.role-footer p {
+    margin: 0;
+    width: 100%;
+    text-align: center;
+}
+
 .btn-card {
-    display: inline-flex;
+    display: inline-flex !important;
     align-items: center;
     justify-content: center;
     flex: 1;
     min-width: 120px;
+    min-height: 48px;
     padding: 12px 16px;
-    border: none;
-    opacity: 1;
-    visibility: visible;
+    border: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
     border-radius: 8px;
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
     cursor: pointer;
     transition: 0.3s;
     text-align: center;
+    width: 100%;
+    position: relative !important;
+    z-index: 1 !important;
+    pointer-events: auto !important;
+}
+
+.role-footer,
+.role-footer button,
+.role-footer .btn-card {
+    display: flex !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    position: relative !important;
+    z-index: 1 !important;
 }
 
 .btn-claim {

@@ -49,7 +49,7 @@ function initMockDatabase() {
         localStorage.setItem('tm_meetings_data', JSON.stringify(db));
         return db;
     }
-    
+
     let db = JSON.parse(rawData);
     Object.keys(db).forEach(date => {
         let roles = db[date];
@@ -99,18 +99,18 @@ function renderDashboard(rolesData) {
     DEFAULT_ROLES.forEach(dr => {
         const role = { id: dr.id, ...rolesData[dr.id] };
         const currentMember = role.member ? role.member : null;
-        
+
         const isCancelPending = role.cancelPending;
         const isAllocatePending = role.allocatePending;
         const hasMember = currentMember !== null;
-        
+
         // Status Class Engine
         let statusClass = 'status-available';
         if (hasMember) statusClass = (isCancelPending || isAllocatePending) ? 'status-pending' : 'status-taken';
 
         const card = document.createElement('div');
         card.className = `role-card ${statusClass}`;
-        
+
         // HTML Badge
         let badgeHTML = `<span class="role-status-badge">Available</span>`;
         if (isAllocatePending) {
@@ -120,7 +120,7 @@ function renderDashboard(rolesData) {
         } else if (hasMember && isCancelPending) {
             badgeHTML = `<span class="role-status-badge pending-badge">Cancel Requested</span>`;
         }
-            
+
         // Member Data Section
         let memberHTML = `<p style="color: var(--text-muted, #666); font-style: italic;">No one assigned yet</p>`;
         if (hasMember) {
@@ -134,15 +134,30 @@ function renderDashboard(rolesData) {
         }
 
         // Buttons and modal triggers
-        let actionsHTML = `<button class="btn-card btn-claim" onclick="openModal('claim', '${role.id}', '${role.title}')">Claim Role</button>`;
+        let actionsHTML = `
+    <button class="btn-card btn-claim" onclick="openModal('claim', '${role.id}', '${role.title}')">
+        Claim Role
+    </button>
+`;
+
+        if (hasMember) {
+            actionsHTML += `
+        <button class="btn-card btn-cancel" onclick="openModal('cancel', '${role.id}', '${role.title}', '${role.member}')">
+            Request Cancel
+        </button>
+    `;
+        }
+
         if (isAllocatePending) {
-            actionsHTML = `<p style="font-size:0.8rem; flex:1; text-align:center; color: var(--text-light, #888);">Waiting for Admin Approval via Email</p>`;
-        } else if (hasMember) {
-             if (isCancelPending) {
-                 actionsHTML = `<p style="font-size:0.8rem; flex:1; text-align:center; color: var(--text-light, #888);">Waiting for Admin Cancel via Email</p>`;
-             } else {
-                 actionsHTML = `<button class="btn-card btn-cancel" onclick="openModal('cancel', '${role.id}', '${role.title}', '${role.member}')">Request Cancel</button>`;
-             }
+            actionsHTML += `<p style="font-size:0.8rem; text-align:center; width:100%; color: var(--text-light, #888);">
+        Approval Pending
+    </p>`;
+        }
+
+        if (isCancelPending) {
+            actionsHTML += `<p style="font-size:0.8rem; text-align:center; width:100%; color: var(--text-light, #888);">
+        Cancel Pending
+    </p>`;
         }
 
         card.innerHTML = `
@@ -192,7 +207,7 @@ document.getElementById('roleModal').addEventListener('click', (e) => {
 
 async function handleFormSubmit(e) {
     e.preventDefault();
-    
+
     const actionType = document.getElementById('modalActionType').value;
     const roleIdStr = document.getElementById('modalRoleId').value;
     const memberNameOrReason = document.getElementById('memberName').value.trim();
@@ -214,9 +229,9 @@ async function handleFormSubmit(e) {
             await fetch('http://localhost:5000/api/roles/cancel', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    member_name: database[currentMeetingDate][roleIdStr].member, 
-                    role_name: roleTitle, 
+                body: JSON.stringify({
+                    member_name: database[currentMeetingDate][roleIdStr].member,
+                    role_name: roleTitle,
                     meeting_date: currentMeetingDate
                 })
             });
@@ -229,7 +244,7 @@ async function handleFormSubmit(e) {
         localStorage.setItem('tm_meetings_data', JSON.stringify(database));
         loadRolesForMeeting();
         closeModal();
-    } catch(err) {
+    } catch (err) {
         console.error(err);
         alert("Could not connect to backend server. Ensure it is running by typing 'npm run dev'!");
     }
