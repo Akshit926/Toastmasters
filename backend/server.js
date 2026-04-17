@@ -1,8 +1,10 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 
-dotenv.config();
+// .env lives one level up from backend/
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 const app = express();
 
@@ -14,11 +16,14 @@ app.use(express.json());
 app.use('/api/members', require('./routes/members'));
 app.use('/api/contacts', require('./routes/contacts'));
 app.use('/api/roles', require('./routes/roles'));
+app.use('/api/club-members', require('./routes/clubMembers'));
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
+const migrate = require('./database/migrate');
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+app.listen(PORT, async () => {
+  console.log(`Server running on port ${PORT}`);
+  await migrate();  // auto-create club_members table + seed 36 members
 });
 
 app.get('/', (req, res) => {
@@ -28,6 +33,6 @@ app.get('/', (req, res) => {
 const { sendRoleNotificationEmail } = require('./services/emailService');
 
 app.get('/test-email', async (req, res) => {
-    await sendRoleNotificationEmail("Test User", "President", "Assigned", "Today");
-    res.send("Test email triggered");
+  await sendRoleNotificationEmail("Test User", "President", "Assigned", "Today");
+  res.send("Test email triggered");
 });

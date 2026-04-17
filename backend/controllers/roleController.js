@@ -1,17 +1,19 @@
 const db = require('../config/db');
 const { sendRoleNotificationEmail } = require('../services/emailService');
 
+// ── POST /api/roles/allocate ──────────────────────────────────────────────────
 exports.allocateRole = async (req, res) => {
     const { member_name, role_name, meeting_date } = req.body;
     try {
         const spaceIndex = member_name.indexOf(' ');
         const first_name = spaceIndex !== -1 ? member_name.substring(0, spaceIndex) : member_name;
-        const last_name = spaceIndex !== -1 ? member_name.substring(spaceIndex + 1).trim() : 'Unknown';
-        
+        const last_name  = spaceIndex !== -1 ? member_name.substring(spaceIndex + 1).trim() : 'Unknown';
+
         let [memberRows] = await db.execute('SELECT id FROM members WHERE first_name = ? AND last_name = ?', [first_name, last_name]);
         let member_id;
-        if(memberRows.length === 0) {
-            const [result] = await db.execute('INSERT INTO members (first_name, last_name, email) VALUES (?, ?, ?)', [first_name, last_name, `${first_name.replace(' ','')}@example.com`]);
+        if (memberRows.length === 0) {
+            const [result] = await db.execute('INSERT INTO members (first_name, last_name, email) VALUES (?, ?, ?)',
+                [first_name, last_name, `${first_name.replace(' ', '')}@example.com`]);
             member_id = result.insertId;
         } else {
             member_id = memberRows[0].id;
@@ -19,9 +21,9 @@ exports.allocateRole = async (req, res) => {
 
         let [roleRows] = await db.execute('SELECT id FROM roles WHERE role_name = ?', [role_name]);
         let role_id;
-        if(roleRows.length === 0) {
-           const [result] = await db.execute('INSERT INTO roles (role_name) VALUES (?)', [role_name]);
-           role_id = result.insertId;
+        if (roleRows.length === 0) {
+            const [result] = await db.execute('INSERT INTO roles (role_name) VALUES (?)', [role_name]);
+            role_id = result.insertId;
         } else {
             role_id = roleRows[0].id;
         }
@@ -39,21 +41,23 @@ exports.allocateRole = async (req, res) => {
     }
 };
 
+// ── POST /api/roles/cancel ────────────────────────────────────────────────────
 exports.cancelRole = async (req, res) => {
     const { member_name, role_name, meeting_date } = req.body;
     try {
         const spaceIndex = member_name.indexOf(' ');
         const first_name = spaceIndex !== -1 ? member_name.substring(0, spaceIndex) : member_name;
-        const last_name = spaceIndex !== -1 ? member_name.substring(spaceIndex + 1).trim() : 'Unknown';
-        
+        const last_name  = spaceIndex !== -1 ? member_name.substring(spaceIndex + 1).trim() : 'Unknown';
+
         let [memberRows] = await db.execute('SELECT id FROM members WHERE first_name = ? AND last_name = ?', [first_name, last_name]);
         let member_id = memberRows.length > 0 ? memberRows[0].id : null;
-        
+
         let [roleRows] = await db.execute('SELECT id FROM roles WHERE role_name = ?', [role_name]);
         let role_id = roleRows.length > 0 ? roleRows[0].id : null;
-        
+
         if (member_id && role_id) {
-            await db.execute('UPDATE member_roles SET status = "Pending_Cancel" WHERE member_id=? AND role_id=? AND meeting_date=?', [member_id, role_id, meeting_date]);
+            await db.execute('UPDATE member_roles SET status = "Pending_Cancel" WHERE member_id=? AND role_id=? AND meeting_date=?',
+                [member_id, role_id, meeting_date]);
         }
 
         await sendRoleNotificationEmail(member_name, role_name, 'Cancelled', meeting_date, member_id, role_id);
@@ -64,24 +68,71 @@ exports.cancelRole = async (req, res) => {
     }
 };
 
-exports.approveAllocate = async (req, res) => {
-    const { member_id, role_id, meeting_date } = req.query;
+// ── GET /api/roles/all — Admin dashboard ─────────────────────────────────────
+exports.getAllRoles = async (req, res) => {
     try {
-        await db.execute('UPDATE member_roles SET status = "Assigned" WHERE member_id=? AND role_id=? AND meeting_date=?', [member_id, role_id, meeting_date]);
-        res.status(200).send('<div style="text-align:center; margin-top:100px; font-family:sans-serif;"><h1 style="color:#004165;">✅ Role Allocation Approved!</h1><p style="color:#666;">The database status has been updated to Assigned. You can close this window securely.</p></div>');
-    } catch(e) {
-        console.error(e);
-        res.status(500).send("Database Update Failed");
+        const [rows] = await db.execute(`
+            SELECT
+                mr.id,
+                mr.member_id,
+                mr.role_id,
+                CONCAT(m.first_name, ' ', m.last_name) AS member_name,
+                cm.customer_id,
+                r.role_name,
+                DATE_FORMAT(mr.meeting_date, '%Y-%m-%d') AS meeting_date,
+                mr.status,
+                mr.created_at
+            FROM member_roles mr
+            JOIN  members m  ON mr.member_id = m.id
+            JOIN  roles   r  ON mr.role_id   = r.id
+            LEFT JOIN club_members cm
+                   ON cm.member_name LIKE CONCAT(m.first_name, ' %')
+                   OR cm.member_name = CONCAT(m.first_name, ' ', m.last_name)
+            ORDER BY mr.meeting_date DESC, mr.created_at DESC
+        `);
+        res.json(rows);
+    } catch (e) {
+        console.error('getAllRoles error:', e);
+        res.status(500).json({ error: 'Database error' });
     }
 };
 
-exports.approveCancel = async (req, res) => {
-    const { member_id, role_id, meeting_date } = req.query;
+// ── Approve allocation: supports both GET (email link) and PATCH (dashboard) ─
+exports.approveAllocate = async (req, res) => {
+    const params = req.method === 'PATCH' ? req.body : req.query;
+    const { member_id, role_id, meeting_date } = params;
     try {
-        await db.execute('UPDATE member_roles SET status = "Cancelled" WHERE member_id=? AND role_id=? AND meeting_date=?', [member_id, role_id, meeting_date]);
-        res.status(200).send('<div style="text-align:center; margin-top:100px; font-family:sans-serif;"><h1 style="color:#772432;">✅ Role Cancellation Approved!</h1><p style="color:#666;">The database status has been updated to Cancelled. You can close this window securely.</p></div>');
-    } catch(e) {
+        await db.execute(
+            'UPDATE member_roles SET status = "Assigned" WHERE member_id=? AND role_id=? AND meeting_date=?',
+            [member_id, role_id, meeting_date]
+        );
+        if (req.method === 'PATCH') {
+            return res.json({ success: true, message: 'Role approved' });
+        }
+        res.status(200).send('<div style="text-align:center;margin-top:100px;font-family:sans-serif"><h1 style="color:#004165">✅ Role Allocation Approved!</h1><p style="color:#666">Status updated to Assigned. You can close this window.</p></div>');
+    } catch (e) {
         console.error(e);
-        res.status(500).send("Database Update Failed");
+        if (req.method === 'PATCH') return res.status(500).json({ error: 'Database error' });
+        res.status(500).send('Database Update Failed');
+    }
+};
+
+// ── Approve cancellation: supports both GET (email link) and PATCH (dashboard) 
+exports.approveCancel = async (req, res) => {
+    const params = req.method === 'PATCH' ? req.body : req.query;
+    const { member_id, role_id, meeting_date } = params;
+    try {
+        await db.execute(
+            'UPDATE member_roles SET status = "Cancelled" WHERE member_id=? AND role_id=? AND meeting_date=?',
+            [member_id, role_id, meeting_date]
+        );
+        if (req.method === 'PATCH') {
+            return res.json({ success: true, message: 'Cancellation approved' });
+        }
+        res.status(200).send('<div style="text-align:center;margin-top:100px;font-family:sans-serif"><h1 style="color:#772432">✅ Role Cancellation Approved!</h1><p style="color:#666">Status updated to Cancelled. You can close this window.</p></div>');
+    } catch (e) {
+        console.error(e);
+        if (req.method === 'PATCH') return res.status(500).json({ error: 'Database error' });
+        res.status(500).send('Database Update Failed');
     }
 };
