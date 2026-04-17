@@ -25,6 +25,8 @@
                 <a href="what-to-expect.html">What to Expect</a>
                 <a href="roles.html">Role Allocation</a>
                 <a href="form.html" class="nav-btn">Member Form</a>
+                <a href="member.html" target="_blank" class="nav-btn nav-btn-member">Member Login</a>
+                <a href="admin.html" target="_blank" class="nav-btn nav-btn-admin">Admin</a>
                 <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle dark/light mode">🌙</button>
             </div>
         </div>
@@ -300,6 +302,39 @@
                 <input type="text" class="form-control" placeholder="Subject" />
                 <textarea class="form-control" placeholder="Your message..."></textarea>
                 <button type="button" class="btn btn-primary btn-full">Send Message</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── PORTAL ACCESS ────────────────────────────────────── -->
+    <section class="portal-section" id="portals">
+        <div class="container">
+            <div class="text-center reveal-on-scroll section-heading">
+                <span class="section-label">Member Access</span>
+                <h2>Club Portals</h2>
+                <p class="section-copy">Access your member dashboard or manage the club as an admin.</p>
+            </div>
+            <div class="portal-cards reveal-on-scroll">
+                <a href="member.html" class="portal-card portal-member">
+                    <div class="portal-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+                    </div>
+                    <div class="portal-info">
+                        <h3>Member Portal</h3>
+                        <p>Login with your Customer ID to view your profile and assigned roles.</p>
+                    </div>
+                    <span class="portal-arrow">→</span>
+                </a>
+                <a href="admin.html" class="portal-card portal-admin">
+                    <div class="portal-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    </div>
+                    <div class="portal-info">
+                        <h3>Admin Dashboard</h3>
+                        <p>Manage members, approve role requests, and oversee club operations.</p>
+                    </div>
+                    <span class="portal-arrow">→</span>
+                </a>
             </div>
         </div>
     </section>

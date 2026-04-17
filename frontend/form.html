@@ -2,83 +2,82 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Wakad Toastmasters – Member Registration</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="form.css">
+  <meta charset="UTF-8">
+  <title>Wakad Toastmasters – Member Registration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="form.css">
 </head>
 
 <body>
-    <div class="form-container">
-        <div style="text-align: right;">
-            <button id="themeToggle" class="theme-btn" aria-label="Toggle Dark Mode"
-                style="font-size: 1.5rem; background: none; border: none; cursor: pointer;">🌙</button>
-        </div>
-        <h1 style="margin-top: 0;">Wakad Toastmasters Club</h1>
-        <p>Member Information Form</p>
-
-        <form id="memberForm">
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" id="fullName" placeholder="Enter your name" required>
-            </div>
-            <div class="form-group">
-                <label>Phone Number</label>
-                <input type="tel" id="phone" placeholder="Enter phone number" required>
-            </div>
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="email" placeholder="Enter email" required>
-            </div>
-            <div class="form-group">
-                <label>Introduction in 2-3 lines</label>
-                <div class="textarea-wrapper">
-                    <span class="counter">0/150</span>
-                    <textarea id="intro" maxlength="150" placeholder="Tell us briefly about yourself"
-                        required></textarea>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Why do you want to join Toastmasters?</label>
-                <div class="textarea-wrapper">
-                    <span class="counter">0/200</span>
-                    <textarea id="whyJoin" maxlength="200" placeholder="Your thoughts..." required></textarea>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>How did you hear about us?</label>
-                <input type="text" id="source" placeholder="e.g. Friend, Google, Social Media" required>
-            </div>
-            <div class="form-group">
-                <label>Preferred Role</label>
-                <select id="role" required>
-                    <option value="">Select role</option>
-                    <option>Speaker</option>
-                    <option>Evaluator</option>
-                    <option>Toastmaster of the Day</option>
-                    <option>Ah Counter</option>
-                    <option>Grammarian</option>
-                    <option>Timer</option>
-                    <option>General Evaluator</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Upload Your Photo</label>
-                <input type="file" accept="image/*" id="photo">
-            </div>
-            <div class="form-group">
-                <label>Any queries or related to that?</label>
-                <div class="textarea-wrapper">
-                    <span class="counter">0/200</span>
-                    <textarea id="queries" maxlength="200" placeholder="Ask away..." required></textarea>
-                </div>
-            </div>
-            <button type="submit">Submit Form</button>
-        </form>
+  <div class="form-container">
+    <div style="text-align: right;">
+      <button id="themeToggle" class="theme-btn" aria-label="Toggle Dark Mode"
+        style="font-size: 1.5rem; background: none; border: none; cursor: pointer;">🌙</button>
     </div>
-    <script src="script.js"></script>
-    <script src="form.js"></script>
+    <h1 style="margin-top: 0;">Wakad Toastmasters Club</h1>
+    <p>Member Information Form</p>
+
+    <form id="memberForm">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" id="fullName" placeholder="Enter your name" required>
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" id="phone" placeholder="Enter phone number" required>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="email" placeholder="Enter email" required>
+      </div>
+      <div class="form-group">
+        <label>Introduction in 2-3 lines</label>
+        <div class="textarea-wrapper">
+          <span class="counter">0/150</span>
+          <textarea id="intro" maxlength="150" placeholder="Tell us briefly about yourself" required></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Why do you want to join Toastmasters?</label>
+        <div class="textarea-wrapper">
+          <span class="counter">0/200</span>
+          <textarea id="whyJoin" maxlength="200" placeholder="Your thoughts..." required></textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>How did you hear about us?</label>
+        <input type="text" id="source" placeholder="e.g. Friend, Google, Social Media" required>
+      </div>
+      <div class="form-group">
+        <label>Preferred Role</label>
+        <select id="role" required>
+          <option value="">Select role</option>
+          <option>Speaker</option>
+          <option>Evaluator</option>
+          <option>Toastmaster of the Day</option>
+          <option>Ah Counter</option>
+          <option>Grammarian</option>
+          <option>Timer</option>
+          <option>General Evaluator</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Upload Your Photo</label>
+        <input type="file" accept="image/*" id="photo">
+      </div>
+      <div class="form-group">
+        <label>Any queries or related to that?</label>
+        <div class="textarea-wrapper">
+          <span class="counter">0/200</span>
+          <textarea id="queries" maxlength="200" placeholder="Ask away..." required></textarea>
+        </div>
+      </div>
+      <button type="submit">Submit Form</button>
+    </form>
+  </div>
+  <script src="script.js"></script>
+  <script src="form.js"></script>
 </body>
 
 </html>

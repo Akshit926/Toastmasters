@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Wakad Toastmasters Club Member Portal — Login with your Customer ID to view your membership details and assigned roles."/>
+  <title>Member Portal — Wakad Toastmasters</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="dashboard.css"/>
+</head>
+<body class="member-page">
+
+  <!-- ── LOGIN SCREEN ──────────────────────────────────────── -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-card">
+      <div class="login-brand">
+        <img src="tm-logo.png" alt="Toastmasters Logo" class="login-logo"/>
+        <h1>Member Portal</h1>
+        <p>Wakad Toastmasters Club</p>
+      </div>
+
+      <div class="form-group">
+        <label for="login-customer-id">Your Customer ID</label>
+        <input
+          type="text"
+          id="login-customer-id"
+          placeholder="e.g. PN-67927180"
+          autocomplete="off"
+          onkeydown="if(event.key==='Enter') doLogin()"
+        />
+      </div>
+
+      <p id="login-error" class="modal-error" style="display:none"></p>
+
+      <button class="btn-primary full-width" id="login-btn" onclick="doLogin()">
+        <svg viewBox="0 0 24 24"><path d="M11 7L9.6 8.4l2.6 2.6H2v2h10.2l-2.6 2.6L11 17l5-5-5-5zm9 12h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-8v2h8v14z"/></svg>
+        Sign In
+      </button>
+
+      <a href="index.html" class="back-link">← Back to Website</a>
+    </div>
+
+    <!-- decorative blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+  </div>
+
+  <!-- ── DASHBOARD SCREEN ──────────────────────────────────── -->
+  <div id="dashboard-screen" style="display:none">
+
+    <header class="member-header">
+      <div class="member-header-inner">
+        <img src="tm-logo.png" alt="Logo" class="header-logo-sm"/>
+        <span class="brand-title">Wakad Toastmasters</span>
+        <div style="flex:1"></div>
+        <button class="btn-ghost" onclick="doLogout()">
+          <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+          Sign Out
+        </button>
+      </div>
+    </header>
+
+    <div class="member-dashboard">
+
+      <!-- Profile card -->
+      <div class="profile-card">
+        <div class="avatar" id="member-avatar">A</div>
+        <div class="profile-info">
+          <h2 id="member-display-name">—</h2>
+          <span class="badge-member" id="member-display-id">—</span>
+          <p class="joined-date" id="member-joined">Joined —</p>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <span class="stat-num" id="m-stat-roles">0</span>
+          <span class="stat-label">Roles Assigned</span>
+        </div>
+        <div class="stat-card accent">
+          <span class="stat-num" id="m-stat-upcoming">0</span>
+          <span class="stat-label">Upcoming Sessions</span>
+        </div>
+      </div>
+
+      <!-- Roles Table -->
+      <div class="section-card">
+        <h3 class="section-card-title">My Assigned Roles</h3>
+        <div class="table-wrapper">
+          <table id="member-roles-table">
+            <thead>
+              <tr>
+                <th>Role</th>
+                <th>Meeting Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="member-roles-tbody">
+              <tr><td colspan="3" class="loading-row">No roles assigned yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Info cards -->
+      <div class="info-grid">
+        <div class="info-card">
+          <h4>What is Toastmasters?</h4>
+          <p>Toastmasters International is a global nonprofit organization that helps people develop public speaking and leadership skills through practice and participation.</p>
+        </div>
+        <div class="info-card">
+          <h4>Meeting Schedule</h4>
+          <p>Wakad Toastmasters meets every <strong>2nd &amp; 4th Saturday</strong> of the month. Check the website for exact timings and venue details.</p>
+        </div>
+        <div class="info-card">
+          <h4>Need Help?</h4>
+          <p>Contact your club VP Education or reach out via the website contact form for any queries about roles or meetings.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="member.js"></script>
+</body>
+</html>

@@ -43,7 +43,7 @@ if (contactBtn) {
         };
 
         try {
-            const response = await fetch('http://localhost:5000/api/contacts', {
+            const response = await fetch('http://localhost:5001/api/contacts', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)

@@ -30,8 +30,14 @@ function getNextFourSaturdays() {
 }
 
 function formatDateString(dateStr) {
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateStr).toLocaleDateString('en-US', options);
+    // Parse locally — avoids UTC midnight timezone shift (shows Friday instead of Saturday)
+    const s = String(dateStr).split('T')[0];
+    const [y, m, d] = s.split('-').map(Number);
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const days   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    // Build a local date just for day-of-week
+    const dt = new Date(y, m - 1, d);
+    return `${days[dt.getDay()]}, ${String(d).padStart(2,'0')} ${months[m-1]} ${y}`;
 }
 
 function initMockDatabase() {
@@ -215,7 +221,7 @@ async function handleFormSubmit(e) {
 
     try {
         if (actionType === 'claim') {
-            await fetch('http://localhost:5000/api/roles/allocate', {
+            await fetch('http://localhost:5001/api/roles/allocate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ member_name: memberNameOrReason, role_name: roleTitle, meeting_date: currentMeetingDate })
@@ -226,7 +232,7 @@ async function handleFormSubmit(e) {
             database[currentMeetingDate][roleIdStr].cancelPending = false;
             alert("Role requested! An email has been sent to Admin for approval.");
         } else if (actionType === 'cancel') {
-            await fetch('http://localhost:5000/api/roles/cancel', {
+            await fetch('http://localhost:5001/api/roles/cancel', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
