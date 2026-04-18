@@ -1,5 +1,5 @@
 // backend/database/migrate.js
-// Auto-creates club_members table and seeds members on every server start.
+// Auto-creates ALL tables and seeds data on every server start.
 // Uses INSERT IGNORE — safe to run multiple times, never duplicates.
 
 const db = require('../config/db');
@@ -45,7 +45,74 @@ const MEMBERS_SEED = [
 
 async function migrate() {
     try {
-        // 1. Create club_members table if it doesn't exist
+        // ── 1. members ────────────────────────────────────────────────────────
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS members (
+                id             INT AUTO_INCREMENT PRIMARY KEY,
+                first_name     VARCHAR(100) NOT NULL,
+                last_name      VARCHAR(100) NOT NULL,
+                email          VARCHAR(255) NOT NULL UNIQUE,
+                phone          VARCHAR(20),
+                introduction   TEXT,
+                why_join       TEXT,
+                source         VARCHAR(255),
+                preferred_role VARCHAR(100),
+                queries        TEXT,
+                created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // ── 2. contacts ───────────────────────────────────────────────────────
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS contacts (
+                id         INT AUTO_INCREMENT PRIMARY KEY,
+                name       VARCHAR(150) NOT NULL,
+                email      VARCHAR(255) NOT NULL,
+                message    TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // ── 3. roles ──────────────────────────────────────────────────────────
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS roles (
+                id        INT AUTO_INCREMENT PRIMARY KEY,
+                role_name VARCHAR(100) NOT NULL UNIQUE
+            )
+        `);
+
+        // Seed standard Toastmasters roles
+        const standardRoles = [
+            'Toastmaster of the Day', 'General Evaluator',
+            'Ah-Counter', 'Grammarian', 'Timer', 'Speaker', 'Evaluator'
+        ];
+        for (const role of standardRoles) {
+            await db.execute('INSERT IGNORE INTO roles (role_name) VALUES (?)', [role]);
+        }
+
+        // ── 4. member_roles ───────────────────────────────────────────────────
+        // NOTE: ENUM includes Pending_Allocation & Pending_Cancel — these are
+        // the intermediate states written by allocateRole() / cancelRole()
+        // before admin approval.
+        await db.execute(`
+            CREATE TABLE IF NOT EXISTS member_roles (
+                id           INT AUTO_INCREMENT PRIMARY KEY,
+                member_id    INT NOT NULL,
+                role_id      INT NOT NULL,
+                meeting_date DATE NOT NULL,
+                status       ENUM(
+                                 'Pending_Allocation',
+                                 'Assigned',
+                                 'Pending_Cancel',
+                                 'Cancelled'
+                             ) DEFAULT 'Pending_Allocation',
+                created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE,
+                FOREIGN KEY (role_id)   REFERENCES roles(id)   ON DELETE CASCADE
+            )
+        `);
+
+        // ── 5. club_members ───────────────────────────────────────────────────
         await db.execute(`
             CREATE TABLE IF NOT EXISTS club_members (
                 id          INT AUTO_INCREMENT PRIMARY KEY,
@@ -55,7 +122,7 @@ async function migrate() {
             )
         `);
 
-        // 2. Seed all 36 members (INSERT IGNORE skips duplicates)
+        // Seed all 36 club members (INSERT IGNORE skips duplicates)
         for (const [cid, name] of MEMBERS_SEED) {
             await db.execute(
                 'INSERT IGNORE INTO club_members (customer_id, member_name) VALUES (?, ?)',
@@ -63,13 +130,21 @@ async function migrate() {
             );
         }
 
-        // 3. Count & confirm
+        // ── 6. Ensure cancel_reason column exists (idempotent) ────────────────
+        try {
+            await db.execute(`ALTER TABLE member_roles ADD COLUMN cancel_reason TEXT DEFAULT NULL AFTER status`);
+            console.log('✅ cancel_reason column added to member_roles');
+        } catch (e) {
+            if (e.code !== 'ER_DUP_FIELDNAME') throw e;
+            // Column already exists — no action needed
+        }
+
         const [[{ total }]] = await db.execute('SELECT COUNT(*) AS total FROM club_members');
-        console.log(`✅ DB migration done — club_members has ${total} rows`);
+        console.log(`✅ DB migration done — ${total} club members ready`);
 
     } catch (err) {
         console.error('❌ DB migration failed:', err.message);
-        // Don't crash the server — just warn
+        // Don't crash the server — just log the error
     }
 }
 

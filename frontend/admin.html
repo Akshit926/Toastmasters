@@ -8,6 +8,21 @@
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="admin-dash.css"/>
+  <style>
+    .btn-delete-role {
+      padding: 5px 10px; border: 1.5px solid #fca5a5; background: transparent;
+      color: #991b1b; border-radius: 6px; font-size: .78rem; font-weight: 600;
+      cursor: pointer; transition: .2s;
+    }
+    .btn-delete-role:hover { background: #fef2f2; }
+    .cancel-reason-pill {
+      display: inline-block; margin-top: 4px; padding: 2px 8px;
+      background: #fef3c7; color: #92400e; border-radius: 4px;
+      font-size: .72rem; font-weight: 600; max-width: 200px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      cursor: help;
+    }
+  </style>
 </head>
 <body>
 
@@ -141,7 +156,7 @@
     </div>
   </div>
 
-  <!-- ── CONFIRM MODAL ─────────────────────────────────────── -->
+  <!-- ── CONFIRM / REJECT MODAL ─────────────────────────────────────── -->
   <div class="overlay" id="confirm-overlay" onclick="closeConfirm(event)">
     <div class="modal">
       <div class="modal-hd">
@@ -150,6 +165,15 @@
       </div>
       <div class="modal-bd">
         <p id="confirm-msg" style="color:#5f6b7a;line-height:1.65"></p>
+        <div id="confirm-reason-wrap" style="display:none;margin-top:14px">
+          <label style="display:block;font-size:.85rem;font-weight:600;color:#374151;margin-bottom:6px">
+            Reason <span style="color:#dc2626">*</span>
+          </label>
+          <textarea id="confirm-reason-input" rows="3" maxlength="300"
+            style="width:100%;padding:10px 13px;border:1.5px solid #d1d5db;border-radius:8px;
+                   font-family:inherit;font-size:.9rem;resize:vertical;box-sizing:border-box;"
+            placeholder="Enter reason…"></textarea>
+        </div>
       </div>
       <div class="modal-ft">
         <button class="btn-outline" onclick="closeConfirm(null)">Cancel</button>

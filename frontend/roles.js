@@ -1,257 +1,419 @@
-/* roles.js */
-const DEFAULT_ROLES = [
-    { id: 'tmod', title: 'Toastmaster of the Day' },
-    { id: 'ttm', title: 'Table Topics Master' },
-    { id: 'ge', title: 'General Evaluator' },
-    { id: 'ah', title: 'Ah-Counter' },
-    { id: 'timer', title: 'Timer' },
-    { id: 'grammarian', title: 'Grammarian' },
-    { id: 'speaker1', title: 'Speaker 1' },
-    { id: 'speaker2', title: 'Speaker 2' },
-    { id: 'speaker3', title: 'Speaker 3' },
-    { id: 'speaker4', title: 'Speaker 4' },
-    { id: 'evaluator1', title: 'Evaluator 1' },
-    { id: 'evaluator2', title: 'Evaluator 2' },
-    { id: 'evaluator3', title: 'Evaluator 3' },
-    { id: 'evaluator4', title: 'Evaluator 4' }
+/* roles.js — complete rewrite with login flow + backend-driven role board */
+
+const API_BASE = 'http://localhost:5001/api';
+
+const ROLE_ICONS = {
+    'Toastmaster of the Day': '🎙️',
+    'Table Topics Master':    '💬',
+    'General Evaluator':      '📋',
+    'Ah-Counter':             '🔢',
+    'Grammarian':             '📖',
+    'Timer':                  '⏱️',
+    'Speaker 1':              '🗣️',
+    'Speaker 2':              '🗣️',
+    'Speaker 3':              '🗣️',
+    'Speaker 4':              '🗣️',
+    'Evaluator 1':            '✏️',
+    'Evaluator 2':            '✏️',
+    'Evaluator 3':            '✏️',
+    'Evaluator 4':            '✏️',
+};
+
+const DEFAULT_ROLE_NAMES = [
+    'Toastmaster of the Day', 'Table Topics Master', 'General Evaluator',
+    'Ah-Counter', 'Grammarian', 'Timer',
+    'Speaker 1', 'Speaker 2', 'Speaker 3',
+    'Evaluator 1', 'Evaluator 2', 'Evaluator 3'
 ];
 
+// ── State ─────────────────────────────────────────────────────────────────────
+let loggedInMember   = null;  // { id, customer_id, member_name }
+let currentMeetingDate = '';
+let allRoleData        = [];  // from backend
+
+// ── Date utilities ────────────────────────────────────────────────────────────
 function getNextFourSaturdays() {
     let dates = [];
-    let d = new Date();
-    d.setDate(d.getDate() + (6 - d.getDay() + 7) % 7);
-    if (d.getDay() !== 6) d.setDate(d.getDate() + 6 - d.getDay());
-
+    let d     = new Date();
+    // advance to next Saturday
+    const daysUntilSat = (6 - d.getDay() + 7) % 7 || 7;
+    d.setDate(d.getDate() + daysUntilSat);
     for (let i = 0; i < 4; i++) {
-        dates.push(d.toISOString().split('T')[0]);
+        dates.push(d.toLocaleDateString('en-CA')); // YYYY-MM-DD in local TZ
         d.setDate(d.getDate() + 7);
     }
     return dates;
 }
 
-function formatDateString(dateStr) {
-    // Parse locally — avoids UTC midnight timezone shift (shows Friday instead of Saturday)
-    const s = String(dateStr).split('T')[0];
-    const [y, m, d] = s.split('-').map(Number);
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function formatDate(dateStr) {
+    const [y, m, day] = String(dateStr).split('T')[0].split('-').map(Number);
     const days   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    // Build a local date just for day-of-week
-    const dt = new Date(y, m - 1, d);
-    return `${days[dt.getDay()]}, ${String(d).padStart(2,'0')} ${months[m-1]} ${y}`;
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const dt = new Date(y, m - 1, day);
+    return `${days[dt.getDay()]}, ${String(day).padStart(2,'0')} ${months[m-1]} ${y}`;
 }
 
-function initMockDatabase() {
-    let rawData = localStorage.getItem('tm_meetings_data');
-    if (!rawData) {
-        const dates = getNextFourSaturdays();
-        let db = {};
-        dates.forEach(date => {
-            let meetingRoles = {};
-            DEFAULT_ROLES.forEach(r => {
-                meetingRoles[r.id] = { title: r.title, member: null, allocatePending: false, cancelPending: false, cancelReason: '' };
-            });
-            db[date] = meetingRoles;
+// ── LOGIN ─────────────────────────────────────────────────────────────────────
+async function handleLogin() {
+    const input = document.getElementById('customerIdInput');
+    const cid   = input.value.trim();
+    const btn   = document.getElementById('loginBtn');
+    const err   = document.getElementById('loginError');
+
+    if (!cid) { showLoginError('Please enter your Customer ID.'); return; }
+
+    btn.disabled   = true;
+    btn.innerHTML  = '<div class="btn-spinner"></div> Verifying…';
+    err.style.display = 'none';
+
+    try {
+        const res  = await fetch(`${API_BASE}/club-members/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ customer_id: cid })
         });
-        localStorage.setItem('tm_meetings_data', JSON.stringify(db));
-        return db;
+        const data = await res.json();
+
+        if (!res.ok) {
+            showLoginError(data.error || 'Invalid Customer ID. Please check and try again.');
+            return;
+        }
+
+        loggedInMember = data.member;
+        showRoleBoard();
+    } catch (e) {
+        showLoginError('Cannot connect to server. Make sure the backend is running on port 5001.');
+    } finally {
+        btn.disabled  = false;
+        btn.innerHTML = '<span>Access Role Board</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
     }
-
-    let db = JSON.parse(rawData);
-    Object.keys(db).forEach(date => {
-        let roles = db[date];
-        DEFAULT_ROLES.forEach(r => {
-            if (!roles[r.id]) {
-                roles[r.id] = { title: r.title, member: null, allocatePending: false, cancelPending: false, cancelReason: '' };
-            }
-            if (roles[r.id].member === '') roles[r.id].member = null;
-            if (roles[r.id].allocatePending === undefined) roles[r.id].allocatePending = false;
-            if (roles[r.id].cancelPending === undefined) roles[r.id].cancelPending = false;
-            if (roles[r.id].cancelReason === undefined) roles[r.id].cancelReason = '';
-        });
-    });
-    return db;
 }
-
-let database = initMockDatabase();
-let currentMeetingDate = Object.keys(database)[0];
 
 document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('customerIdInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') handleLogin();
+    });
     populateDateDropdown();
-    loadRolesForMeeting();
 });
 
+function showLoginError(msg) {
+    const err = document.getElementById('loginError');
+    err.textContent  = msg;
+    err.style.display = 'block';
+}
+
+function handleLogout() {
+    loggedInMember = null;
+    allRoleData    = [];
+    document.getElementById('login-panel').style.display = '';
+    document.getElementById('role-board').style.display  = 'none';
+    document.getElementById('customerIdInput').value     = '';
+    document.getElementById('loginError').style.display  = 'none';
+}
+
+// ── SHOW ROLE BOARD ───────────────────────────────────────────────────────────
+function showRoleBoard() {
+    document.getElementById('login-panel').style.display = 'none';
+    document.getElementById('role-board').style.display  = '';
+
+    // Populate member bar
+    const name = loggedInMember.member_name;
+    document.getElementById('memberNameDisplay').textContent = name;
+    document.getElementById('memberIdDisplay').textContent   = loggedInMember.customer_id;
+    document.getElementById('memberAvatarLg').textContent    = name.charAt(0).toUpperCase();
+
+    loadRolesForMeeting();
+}
+
+// ── DATE DROPDOWN ─────────────────────────────────────────────────────────────
 function populateDateDropdown() {
     const dropdown = document.getElementById('meetingDate');
     dropdown.innerHTML = '';
-    Object.keys(database).forEach(date => {
-        const option = document.createElement('option');
-        option.value = date;
-        option.textContent = formatDateString(date);
-        dropdown.appendChild(option);
+    const dates = getNextFourSaturdays();
+    dates.forEach((date, i) => {
+        const opt     = document.createElement('option');
+        opt.value     = date;
+        opt.textContent = formatDate(date);
+        dropdown.appendChild(opt);
     });
-    dropdown.value = currentMeetingDate;
+    currentMeetingDate = dates[0];
 }
 
-function loadRolesForMeeting() {
-    const dropdown = document.getElementById('meetingDate');
-    currentMeetingDate = dropdown.value;
-    renderDashboard(database[currentMeetingDate]);
+async function loadRolesForMeeting() {
+    currentMeetingDate = document.getElementById('meetingDate').value;
+    const dashboard = document.getElementById('rolesDashboard');
+    dashboard.innerHTML = '<div class="loading-roles"><div class="spinner"></div><p>Loading roles…</p></div>';
+
+    try {
+        const res  = await fetch(`${API_BASE}/roles/all`);
+        allRoleData = await res.json();
+    } catch (e) {
+        dashboard.innerHTML = '<p class="roles-error">⚠ Cannot connect to backend. Is the server running on port 5001?</p>';
+        return;
+    }
+
+    renderRoleBoard();
 }
 
-function renderDashboard(rolesData) {
+// ── RENDER ROLE CARDS ─────────────────────────────────────────────────────────
+function renderRoleBoard() {
     const dashboard = document.getElementById('rolesDashboard');
     dashboard.innerHTML = '';
 
-    DEFAULT_ROLES.forEach(dr => {
-        const role = { id: dr.id, ...rolesData[dr.id] };
-        const currentMember = role.member ? role.member : null;
+    // Filter backend data for current date
+    const forDate = allRoleData.filter(r =>
+        String(r.meeting_date).split('T')[0] === currentMeetingDate &&
+        (r.status === 'Pending_Allocation' || r.status === 'Assigned')
+    );
 
-        const isCancelPending = role.cancelPending;
-        const isAllocatePending = role.allocatePending;
-        const hasMember = currentMember !== null;
+    // Build map: role_name → assignment
+    const takenMap = {};
+    forDate.forEach(r => {
+        if (!takenMap[r.role_name]) takenMap[r.role_name] = r;
+    });
 
-        // Status Class Engine
-        let statusClass = 'status-available';
-        if (hasMember) statusClass = (isCancelPending || isAllocatePending) ? 'status-pending' : 'status-taken';
+    let available = 0, taken = 0, pending = 0;
+
+    DEFAULT_ROLE_NAMES.forEach(roleName => {
+        const assignment = takenMap[roleName] || null;
+        const icon       = ROLE_ICONS[roleName] || '🎯';
+
+        let status, badgeText, badgeClass, memberHTML, actionsHTML;
+        const myName = loggedInMember?.member_name || '';
+
+        if (!assignment) {
+            status     = 'available';
+            badgeText  = 'Available';
+            badgeClass = 'badge-available';
+            available++;
+            memberHTML = `<div class="empty-slot">No one assigned yet</div>`;
+            actionsHTML = `<button class="btn-card btn-claim" onclick="openClaim('${escQ(roleName)}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M12 5v14M5 12h14"/>
+                </svg>
+                Claim Role
+            </button>`;
+        } else if (assignment.status === 'Pending_Allocation') {
+            status     = 'pending';
+            badgeText  = 'Pending Approval';
+            badgeClass = 'badge-pending';
+            pending++;
+            const isMe = assignment.member_name === myName;
+            memberHTML = `
+                <div class="taken-by">
+                    <div class="member-av">${(assignment.member_name||'?').charAt(0)}</div>
+                    <div>
+                        <div class="taken-name">${esc(assignment.member_name)}</div>
+                        <div class="taken-status">Awaiting admin approval</div>
+                    </div>
+                </div>`;
+            actionsHTML = isMe
+                ? `<button class="btn-card btn-cancel-sm" onclick="openCancelRequest('${escQ(roleName)}','${escQ(assignment.member_name)}')">
+                     Request Cancellation
+                   </button>`
+                : `<div class="role-locked">Pending approval</div>`;
+        } else {
+            // Assigned
+            status     = 'taken';
+            badgeText  = 'Assigned';
+            badgeClass = 'badge-taken';
+            taken++;
+            const isMe = assignment.member_name === myName;
+            memberHTML = `
+                <div class="taken-by">
+                    <div class="member-av member-av-taken">${(assignment.member_name||'?').charAt(0)}</div>
+                    <div>
+                        <div class="taken-name">${esc(assignment.member_name)}</div>
+                        <div class="taken-status taken-confirmed">Confirmed ✓</div>
+                    </div>
+                </div>`;
+            actionsHTML = isMe
+                ? `<button class="btn-card btn-cancel-sm" onclick="openCancelRequest('${escQ(roleName)}','${escQ(assignment.member_name)}')">
+                     Request Cancellation
+                   </button>`
+                : `<div class="role-locked">Role taken</div>`;
+        }
 
         const card = document.createElement('div');
-        card.className = `role-card ${statusClass}`;
-
-        // HTML Badge
-        let badgeHTML = `<span class="role-status-badge">Available</span>`;
-        if (isAllocatePending) {
-            badgeHTML = `<span class="role-status-badge pending-badge">Approval Pending</span>`;
-        } else if (hasMember && !isCancelPending) {
-            badgeHTML = `<span class="role-status-badge taken-badge">Taken</span>`;
-        } else if (hasMember && isCancelPending) {
-            badgeHTML = `<span class="role-status-badge pending-badge">Cancel Requested</span>`;
-        }
-
-        // Member Data Section
-        let memberHTML = `<p style="color: var(--text-muted, #666); font-style: italic;">No one assigned yet</p>`;
-        if (hasMember) {
-            memberHTML = `
-                <div class="allocated-member ${(isCancelPending || isAllocatePending) ? 'pending-member' : ''}">
-                    <div class="member-avatar">${currentMember.charAt(0).toUpperCase()}</div>
-                    <span>${currentMember}</span>
-                </div>
-            `;
-            if (isCancelPending) memberHTML += `<p class="cancel-reason">Reason: ${role.cancelReason}</p>`;
-        }
-
-        // Buttons and modal triggers
-        let actionsHTML = `
-    <button class="btn-card btn-claim" onclick="openModal('claim', '${role.id}', '${role.title}')">
-        Claim Role
-    </button>
-`;
-
-        if (hasMember) {
-            actionsHTML += `
-        <button class="btn-card btn-cancel" onclick="openModal('cancel', '${role.id}', '${role.title}', '${role.member}')">
-            Request Cancel
-        </button>
-    `;
-        }
-
-        if (isAllocatePending) {
-            actionsHTML += `<p style="font-size:0.8rem; text-align:center; width:100%; color: var(--text-light, #888);">
-        Approval Pending
-    </p>`;
-        }
-
-        if (isCancelPending) {
-            actionsHTML += `<p style="font-size:0.8rem; text-align:center; width:100%; color: var(--text-light, #888);">
-        Cancel Pending
-    </p>`;
-        }
-
+        card.className = `role-card role-${status}`;
         card.innerHTML = `
-            <div class="role-header"><div class="role-title">${role.title}</div>${badgeHTML}</div>
-            <div class="role-body">${memberHTML}</div>
-            <div class="role-footer">${actionsHTML}</div>
+            <div class="role-top">
+                <div class="role-icon-wrap">${icon}</div>
+                <span class="role-badge ${badgeClass}">${badgeText}</span>
+            </div>
+            <div class="role-name">${roleName}</div>
+            <div class="role-member">${memberHTML}</div>
+            <div class="role-actions">${actionsHTML}</div>
         `;
         dashboard.appendChild(card);
     });
+
+    document.getElementById('stat-available').textContent = available;
+    document.getElementById('stat-taken').textContent     = taken;
+    document.getElementById('stat-pending').textContent   = pending;
 }
 
-function openModal(actionType, roleId, roleTitle, currentMember = '') {
-    const modal = document.getElementById('roleModal');
-    document.getElementById('actionForm').reset();
+// ── MODAL — CLAIM ─────────────────────────────────────────────────────────────
+let _claimRole = '';
 
-    document.getElementById('modalRoleName').textContent = roleTitle;
-    document.getElementById('modalActionType').value = actionType;
-    document.getElementById('modalRoleId').value = roleId;
+function openClaim(roleName) {
+    _claimRole = roleName;
+    showModalView('claim');
+    document.getElementById('modalTitle').textContent     = 'Claim This Role';
+    document.getElementById('modalRoleName').textContent  = roleName;
+    document.getElementById('modalMeetingDate').textContent = '📅 ' + formatDate(currentMeetingDate);
 
-    const titleEl = document.getElementById('modalTitle');
-    const memberNameInput = document.getElementById('memberName');
-    const submitBtn = document.getElementById('modalSubmitBtn');
+    const name = loggedInMember.member_name;
+    document.getElementById('confAvatar').textContent   = name.charAt(0).toUpperCase();
+    document.getElementById('confName').textContent     = name;
+    document.getElementById('confId').textContent       = loggedInMember.customer_id;
 
-    if (actionType === 'claim') {
-        titleEl.textContent = 'Claim Role';
-        document.querySelector('label[for="memberName"]').textContent = 'Your Name';
-        memberNameInput.placeholder = 'e.g. John Doe';
-        submitBtn.textContent = 'Confirm Claim';
-        submitBtn.style.background = 'var(--blue)';
-    } else if (actionType === 'cancel') {
-        titleEl.textContent = 'Cancel Role?';
-        document.querySelector('label[for="memberName"]').textContent = 'Reason for cancellation';
-        memberNameInput.placeholder = 'e.g. Unwell, Out of town';
-        submitBtn.textContent = 'Request Cancellation';
-        submitBtn.style.background = 'var(--maroon)';
-    }
-    modal.classList.add('active');
+    openModal();
 }
 
-function closeModal() {
-    document.getElementById('roleModal').classList.remove('active');
-}
-
-document.getElementById('roleModal').addEventListener('click', (e) => {
-    if (e.target.id === 'roleModal') closeModal();
-});
-
-async function handleFormSubmit(e) {
-    e.preventDefault();
-
-    const actionType = document.getElementById('modalActionType').value;
-    const roleIdStr = document.getElementById('modalRoleId').value;
-    const memberNameOrReason = document.getElementById('memberName').value.trim();
-    const roleTitle = database[currentMeetingDate][roleIdStr].title;
+async function submitClaim() {
+    const btn = document.getElementById('claimSubmitBtn');
+    btn.disabled = true;
+    showModalView('loading');
 
     try {
-        if (actionType === 'claim') {
-            await fetch('http://localhost:5001/api/roles/allocate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ member_name: memberNameOrReason, role_name: roleTitle, meeting_date: currentMeetingDate })
-            });
+        const res  = await fetch(`${API_BASE}/roles/allocate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                member_name:  loggedInMember.member_name,
+                role_name:    _claimRole,
+                meeting_date: currentMeetingDate
+            })
+        });
+        const data = await res.json();
 
-            database[currentMeetingDate][roleIdStr].member = memberNameOrReason;
-            database[currentMeetingDate][roleIdStr].allocatePending = true;
-            database[currentMeetingDate][roleIdStr].cancelPending = false;
-            alert("Role requested! An email has been sent to Admin for approval.");
-        } else if (actionType === 'cancel') {
-            await fetch('http://localhost:5001/api/roles/cancel', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    member_name: database[currentMeetingDate][roleIdStr].member,
-                    role_name: roleTitle,
-                    meeting_date: currentMeetingDate
-                })
-            });
-
-            database[currentMeetingDate][roleIdStr].cancelPending = true;
-            database[currentMeetingDate][roleIdStr].cancelReason = memberNameOrReason;
-            alert("Cancellation request sent! Admin must approve it via email.");
+        if (!res.ok) {
+            showModalView('claim');
+            btn.disabled = false;
+            showInlineError(data.error || 'Could not submit request.');
+            return;
         }
 
-        localStorage.setItem('tm_meetings_data', JSON.stringify(database));
-        loadRolesForMeeting();
-        closeModal();
-    } catch (err) {
-        console.error(err);
-        alert("Could not connect to backend server. Ensure it is running by typing 'npm run dev'!");
+        showModalView('success');
+        document.getElementById('successTitle').textContent = 'Request Submitted!';
+        document.getElementById('successMsg').textContent   =
+            `Your claim for "${_claimRole}" has been sent to the admin for approval. You'll see it as Pending until confirmed.`;
+
+        await loadRolesForMeeting();
+    } catch (e) {
+        showModalView('claim');
+        btn.disabled = false;
+        showInlineError('Network error — is the backend running?');
     }
+}
+
+// ── MODAL — CANCEL REQUEST ────────────────────────────────────────────────────
+let _cancelRole = '', _cancelMember = '';
+
+function openCancelRequest(roleName, memberName) {
+    _cancelRole   = roleName;
+    _cancelMember = memberName;
+    showModalView('cancel');
+    document.getElementById('cancelRoleName').textContent   = roleName;
+    document.getElementById('cancelMeetingDate').textContent = '📅 ' + formatDate(currentMeetingDate);
+    document.getElementById('cancelReasonInput').value      = '';
+    document.getElementById('charCount').textContent        = '0';
+    openModal();
+}
+
+async function submitCancel() {
+    const reason = document.getElementById('cancelReasonInput').value.trim();
+    if (!reason) { alert('Please provide a reason for cancellation.'); return; }
+
+    const btn = document.getElementById('cancelSubmitBtn');
+    btn.disabled = true;
+    showModalView('loading');
+
+    try {
+        const res  = await fetch(`${API_BASE}/roles/cancel`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                member_name:   _cancelMember,
+                role_name:     _cancelRole,
+                meeting_date:  currentMeetingDate,
+                cancel_reason: reason
+            })
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+            showModalView('cancel');
+            btn.disabled = false;
+            alert(data.error || 'Could not submit cancellation.');
+            return;
+        }
+
+        showModalView('success');
+        document.getElementById('successTitle').textContent = 'Cancellation Requested!';
+        document.getElementById('successMsg').textContent   =
+            `Your cancellation request for "${_cancelRole}" has been sent to the admin. It will be reviewed shortly.`;
+
+        await loadRolesForMeeting();
+    } catch (e) {
+        showModalView('cancel');
+        btn.disabled = false;
+        alert('Network error — is the backend running?');
+    }
+}
+
+// char counter for cancel reason
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('cancelReasonInput').addEventListener('input', function() {
+        document.getElementById('charCount').textContent = this.value.length;
+    });
+});
+
+// ── MODAL HELPERS ─────────────────────────────────────────────────────────────
+function openModal() {
+    document.getElementById('roleModal').classList.add('active');
+}
+function closeModal() {
+    document.getElementById('roleModal').classList.remove('active');
+    document.getElementById('claimSubmitBtn').disabled  = false;
+    document.getElementById('cancelSubmitBtn').disabled = false;
+}
+function showModalView(view) {
+    ['modal-claim-view','modal-cancel-view','modal-loading','modal-success-view']
+        .forEach(id => document.getElementById(id).style.display = 'none');
+    const map = {
+        claim:   'modal-claim-view',
+        cancel:  'modal-cancel-view',
+        loading: 'modal-loading',
+        success: 'modal-success-view'
+    };
+    if (map[view]) document.getElementById(map[view]).style.display = '';
+}
+function showInlineError(msg) {
+    let el = document.getElementById('claimInlineError');
+    if (!el) {
+        el = document.createElement('p');
+        el.id = 'claimInlineError';
+        el.style.cssText = 'color:#991b1b;font-size:.875rem;margin-top:8px;text-align:center';
+        document.getElementById('modal-claim-view').appendChild(el);
+    }
+    el.textContent = msg;
+}
+
+document.getElementById('roleModal').addEventListener('click', e => {
+    if (e.target.id === 'roleModal') closeModal();
+});
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+});
+
+// ── ESCAPE HELPERS ────────────────────────────────────────────────────────────
+function esc(str) {
+    return String(str || '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function escQ(str) {
+    return String(str || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
 }

@@ -32,13 +32,19 @@ CREATE TABLE IF NOT EXISTS roles (
 );
 
 -- 4. Member_Roles Mapping Table (Tracks who is doing what and when)
+-- NOTE: Pending_Allocation / Pending_Cancel are intermediate states before admin approval
 CREATE TABLE IF NOT EXISTS member_roles (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    member_id INT NOT NULL,
-    role_id INT NOT NULL,
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    member_id    INT NOT NULL,
+    role_id      INT NOT NULL,
     meeting_date DATE NOT NULL,
-    status ENUM('Assigned', 'Cancelled') DEFAULT 'Assigned',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status       ENUM(
+                     'Pending_Allocation',
+                     'Assigned',
+                     'Pending_Cancel',
+                     'Cancelled'
+                 ) DEFAULT 'Pending_Allocation',
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE,
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
 );

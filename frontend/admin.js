@@ -3,10 +3,10 @@ const API       = 'http://localhost:5001/api/club-members';
 const ROLES_API = 'http://localhost:5001/api/roles';
 
 // ── State ─────────────────────────────────────────────────────────────────────
-let allMembers  = [];
-let allRoles    = [];
-let editingId   = null;
-let roleTab     = 'all';
+let allMembers = [];
+let allRoles   = [];
+let editingId  = null;
+let roleTab    = 'all';
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => { loadMembers(); });
@@ -17,7 +17,7 @@ function showSection(name, el) {
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById(`section-${name}`).classList.add('active');
     if (el) el.classList.add('active');
-    const titles = { 'members': 'Member Management', 'roles': 'Role Requests & Approvals' };
+    const titles = { members: 'Member Management', roles: 'Role Requests & Approvals' };
     document.getElementById('page-title').textContent = titles[name] || 'Dashboard';
     if (name === 'roles') loadRoles();
 }
@@ -26,9 +26,9 @@ function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('open');
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
 //  MEMBERS TAB
-// ─────────────────────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
 
 async function loadMembers() {
     const tbody = document.getElementById('members-tbody');
@@ -38,9 +38,9 @@ async function loadMembers() {
         allMembers = await res.json();
         renderTable(allMembers);
         updateStats(allMembers);
-    } catch (err) {
+    } catch {
         tbody.innerHTML = `<tr><td colspan="5" class="empty-row" style="color:var(--danger)">
-            ⚠ Could not connect to server. Is the backend running on port 5000?</td></tr>`;
+            ⚠ Could not connect to server. Is the backend running on port 5001?</td></tr>`;
     }
 }
 
@@ -66,11 +66,11 @@ function renderTable(members) {
 }
 
 function updateStats(members) {
-    document.getElementById('stat-total').textContent = members.length;
-    document.getElementById('stat-ids').textContent   = members.length;
+    document.getElementById('stat-total').textContent  = members.length;
+    document.getElementById('stat-ids').textContent    = members.length;
     document.getElementById('member-chip').textContent = `${members.length} Members`;
     if (members.length > 0) {
-        const newest = [...members].sort((a,b) => new Date(b.created_at) - new Date(a.created_at))[0];
+        const newest = [...members].sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
         document.getElementById('stat-new').textContent = newest.member_name.split(' ')[0];
     }
 }
@@ -133,7 +133,7 @@ async function saveMember() {
     hideModalError();
 
     try {
-        const res = await fetch(editingId ? `${API}/${id}` : API, {
+        const res  = await fetch(editingId ? `${API}/${id}` : API, {
             method:  editingId ? 'PUT' : 'POST',
             headers: { 'Content-Type': 'application/json' },
             body:    JSON.stringify({ customer_id: customerId, member_name: memberName })
@@ -155,9 +155,9 @@ async function deleteMember(id, name) {
     } catch { showToast('Network error.', 'error'); }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
 //  ROLES TAB
-// ─────────────────────────────────────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════════════════════
 
 async function loadRoles() {
     const tbody = document.getElementById('roles-tbody');
@@ -170,14 +170,14 @@ async function loadRoles() {
             r.status === 'Pending_Allocation' || r.status === 'Pending_Cancel'
         ).length;
 
-        const dot   = document.getElementById('pending-dot');
-        const chip  = document.getElementById('pending-chip');
-        dot.style.display  = pending > 0 ? 'block' : 'none';
+        const dot  = document.getElementById('pending-dot');
+        const chip = document.getElementById('pending-chip');
+        dot.style.display  = pending > 0 ? 'block'      : 'none';
         chip.textContent   = pending;
         chip.style.display = pending > 0 ? 'inline-flex' : 'none';
 
         renderRolesTable();
-    } catch (err) {
+    } catch {
         tbody.innerHTML = `<tr><td colspan="6" class="empty-row" style="color:var(--danger)">⚠ Could not load roles. Is the server running?</td></tr>`;
     }
 }
@@ -189,14 +189,12 @@ function switchTab(tab) {
     renderRolesTable();
 }
 
-function filterRoles() {
-    renderRolesTable();
-}
+function filterRoles() { renderRolesTable(); }
 
 function renderRolesTable() {
     const tbody = document.getElementById('roles-tbody');
     const q     = (document.getElementById('roles-search')?.value || '').toLowerCase().trim();
-    let rows = roleTab === 'pending'
+    let rows    = roleTab === 'pending'
         ? allRoles.filter(r => r.status === 'Pending_Allocation' || r.status === 'Pending_Cancel')
         : allRoles;
     if (q) rows = rows.filter(r =>
@@ -211,12 +209,15 @@ function renderRolesTable() {
     }
     tbody.innerHTML = rows.map(r => {
         const { cls, lbl } = statusInfo(r.status);
+        const reasonHtml   = r.cancel_reason
+            ? `<div class="cancel-reason-pill" title="${esc(r.cancel_reason)}">Reason: ${esc(r.cancel_reason).substring(0,40)}${r.cancel_reason.length > 40 ? '…' : ''}</div>`
+            : '';
         return `<tr>
             <td><strong>${esc(r.member_name || '—')}</strong></td>
             <td>${r.customer_id ? `<span class="cid-pill">${esc(r.customer_id)}</span>` : '<span style="color:var(--muted)">—</span>'}</td>
             <td>${esc(r.role_name || '—')}</td>
             <td class="date-txt">${r.meeting_date ? fmtDateSat(r.meeting_date) : '—'}</td>
-            <td><span class="status-pill ${cls}">${lbl}</span></td>
+            <td><span class="status-pill ${cls}">${lbl}</span>${reasonHtml}</td>
             <td><div class="act-cell">${buildRoleActions(r)}</div></td>
         </tr>`;
     }).join('');
@@ -226,23 +227,25 @@ function buildRoleActions(r) {
     const d = encodeDate(r.meeting_date);
     if (r.status === 'Pending_Allocation') return `
         <button class="btn-approve" onclick="approveAllocation(${r.member_id},${r.role_id},'${d}',this)">✓ Approve</button>
-        <button class="btn-reject"  onclick="rejectAllocation(${r.member_id},${r.role_id},'${d}','${esc(r.member_name)}',this)">✕ Reject</button>`;
+        <button class="btn-reject"  onclick="openRejectModal(${r.id},${r.member_id},${r.role_id},'${d}','${esc(r.member_name)}','allocation')">✕ Reject</button>`;
     if (r.status === 'Pending_Cancel') return `
         <button class="btn-approve" onclick="approveCancel(${r.member_id},${r.role_id},'${d}',this)">✓ Confirm Cancel</button>
         <button class="btn-reject"  onclick="denyCancel(${r.member_id},${r.role_id},'${d}','${esc(r.member_name)}',this)">✕ Keep Role</button>`;
     if (r.status === 'Assigned') return `
-        <button class="btn-reject" onclick="forceCancel(${r.member_id},${r.role_id},'${d}','${esc(r.member_name)}','${esc(r.role_name)}',this)">Force Cancel</button>`;
+        <button class="btn-reject"  onclick="openRejectModal(${r.id},${r.member_id},${r.role_id},'${d}','${esc(r.member_name)}','force')">Force Cancel</button>
+        <button class="btn-delete-role" onclick="deleteRoleRow(${r.id},'${esc(r.member_name)}','${esc(r.role_name)}')">🗑 Delete</button>`;
+    if (r.status === 'Cancelled') return `
+        <button class="btn-delete-role" onclick="deleteRoleRow(${r.id},'${esc(r.member_name)}','${esc(r.role_name)}')">🗑 Delete</button>`;
     return '—';
 }
 
-// ── Approve role allocation (Pending_Allocation → Assigned) ───────────────────
+// ── Approve allocation ────────────────────────────────────────────────────────
 async function approveAllocation(memberId, roleId, date, btn) {
     btn.disabled = true; btn.textContent = '…';
     try {
-        const res = await fetch(`${ROLES_API}/approve-allocate`, {
-            method:  'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ member_id: memberId, role_id: roleId, meeting_date: date })
+        const res  = await fetch(`${ROLES_API}/approve-allocate`, {
+            method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ member_id: memberId, role_id: roleId, meeting_date: date })
         });
         const data = await res.json();
         if (res.ok) { showToast('✅ Role allocation approved!', 'success'); loadRoles(); }
@@ -250,31 +253,13 @@ async function approveAllocation(memberId, roleId, date, btn) {
     } catch { showToast('Network error.', 'error'); btn.disabled = false; btn.textContent = '✓ Approve'; }
 }
 
-// ── Reject allocation (Pending_Allocation → Cancelled) ───────────────────────
-async function rejectAllocation(memberId, roleId, date, name, btn) {
-    showConfirm(`Reject role allocation for <strong>${name}</strong>?<br>This will mark the request as Cancelled.`,
-        async () => {
-            try {
-                const res = await fetch(`${ROLES_API}/approve-cancel`, {
-                    method:  'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body:    JSON.stringify({ member_id: memberId, role_id: roleId, meeting_date: date })
-                });
-                if (res.ok) { showToast('🗑 Allocation rejected.', 'success'); loadRoles(); }
-                else        { showToast('Rejection failed.', 'error'); }
-            } catch { showToast('Network error.', 'error'); }
-        }
-    );
-}
-
-// ── Approve cancellation (Pending_Cancel → Cancelled) ───────────────────────
+// ── Approve cancellation ──────────────────────────────────────────────────────
 async function approveCancel(memberId, roleId, date, btn) {
     btn.disabled = true; btn.textContent = '…';
     try {
-        const res = await fetch(`${ROLES_API}/approve-cancel`, {
-            method:  'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body:    JSON.stringify({ member_id: memberId, role_id: roleId, meeting_date: date })
+        const res  = await fetch(`${ROLES_API}/approve-cancel`, {
+            method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ member_id: memberId, role_id: roleId, meeting_date: date })
         });
         const data = await res.json();
         if (res.ok) { showToast('✅ Cancellation confirmed!', 'success'); loadRoles(); }
@@ -282,57 +267,109 @@ async function approveCancel(memberId, roleId, date, btn) {
     } catch { showToast('Network error.', 'error'); btn.disabled = false; btn.textContent = '✓ Confirm Cancel'; }
 }
 
-// ── Deny cancel (Pending_Cancel → Assigned, keep the role) ──────────────────
+// ── Deny cancellation (keep role as Assigned) ─────────────────────────────────
 async function denyCancel(memberId, roleId, date, name, btn) {
-    showConfirm(`Keep the role assigned to <strong>${name}</strong>? Their cancellation request will be denied.`,
+    btn.disabled = true; btn.textContent = '…';
+    try {
+        const res = await fetch(`${ROLES_API}/approve-allocate`, {
+            method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ member_id: memberId, role_id: roleId, meeting_date: date })
+        });
+        if (res.ok) { showToast(`✅ Cancellation denied — ${name} keeps the role.`, 'success'); loadRoles(); }
+        else        { showToast('Failed.', 'error'); btn.disabled = false; btn.textContent = '✕ Keep Role'; }
+    } catch { showToast('Network error.', 'error'); btn.disabled = false; btn.textContent = '✕ Keep Role'; }
+}
+
+// ── Hard-delete a role row ────────────────────────────────────────────────────
+async function deleteRoleRow(id, name, roleName) {
+    openConfirm(
+        `Delete Record`,
+        `Permanently delete <strong>${roleName}</strong> for <strong>${name}</strong>? This cannot be undone.`,
+        null,  // no reason field needed
         async () => {
-            try {
-                const res = await fetch(`${ROLES_API}/approve-allocate`, {
-                    method:  'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body:    JSON.stringify({ member_id: memberId, role_id: roleId, meeting_date: date })
-                });
-                if (res.ok) { showToast('✅ Cancellation denied — role kept.', 'success'); loadRoles(); }
-                else        { showToast('Failed.', 'error'); }
-            } catch { showToast('Network error.', 'error'); }
+            const res = await fetch(`${ROLES_API}/${id}`, { method: 'DELETE' });
+            if (res.ok) { showToast('🗑 Record deleted.', 'success'); loadRoles(); }
+            else        { showToast('Delete failed.', 'error'); }
         }
     );
 }
 
-// ── Force cancel (Assigned → Cancelled, admin override) ─────────────────────
-async function forceCancel(memberId, roleId, date, name, roleName, btn) {
-    showConfirm(`Force-cancel <strong>${roleName}</strong> for <strong>${name}</strong>?<br>This will immediately mark it as Cancelled.`,
-        async () => {
-            try {
-                const res = await fetch(`${ROLES_API}/approve-cancel`, {
-                    method:  'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body:    JSON.stringify({ member_id: memberId, role_id: roleId, meeting_date: date })
-                });
-                if (res.ok) { showToast('🗑 Role force-cancelled.', 'success'); loadRoles(); }
-                else        { showToast('Failed.', 'error'); }
-            } catch { showToast('Network error.', 'error'); }
+// ═════════════════════════════════════════════════════════════════════════════
+//  REJECT / FORCE-CANCEL MODAL  (with reason)
+// ═════════════════════════════════════════════════════════════════════════════
+let _rejectCallback = null;
+
+function openRejectModal(rowId, memberId, roleId, date, name, mode) {
+    // mode: 'allocation' = reject pending claim | 'force' = force-cancel an assigned role
+    const isForce   = mode === 'force';
+    const titleText = isForce ? `Force Cancel Role` : `Reject Allocation`;
+    const msgText   = isForce
+        ? `Force-cancel the role for <strong>${name}</strong>? Provide a reason.`
+        : `Reject allocation request from <strong>${name}</strong>? Provide a reason.`;
+
+    _rejectCallback = async (reason) => {
+        let res;
+        if (isForce) {
+            res = await fetch(`${ROLES_API}/reject-allocate`, {
+                method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ member_id: memberId, role_id: roleId, meeting_date: date, reason })
+            });
+        } else {
+            res = await fetch(`${ROLES_API}/reject-allocate`, {
+                method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ member_id: memberId, role_id: roleId, meeting_date: date, reason })
+            });
         }
-    );
-}
-
-// ── Confirm Modal ─────────────────────────────────────────────────────────────
-let confirmCallback = null;
-
-function showConfirm(message, onConfirm) {
-    confirmCallback = onConfirm;
-    document.getElementById('confirm-message').innerHTML = message;
-    document.getElementById('confirm-overlay').classList.add('open');
-    document.getElementById('confirm-ok-btn').onclick = async () => {
-        closeConfirm(null);
-        await confirmCallback();
+        if (res.ok) {
+            showToast(isForce ? '🗑 Role force-cancelled.' : '🗑 Allocation rejected.', 'success');
+            loadRoles();
+        } else {
+            showToast('Action failed.', 'error');
+        }
     };
+
+    openConfirm(titleText, msgText, 'Enter reason (required):', null, true);
+}
+
+// ── Confirm / Action Modal ────────────────────────────────────────────────────
+// openConfirm(title, msg, reasonPlaceholder|null, onConfirmNoReason, requireReason)
+function openConfirm(title, msg, reasonPlaceholder, directCallback, requireReason = false) {
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-msg').innerHTML     = msg;
+
+    const reasonWrap = document.getElementById('confirm-reason-wrap');
+    const reasonInp  = document.getElementById('confirm-reason-input');
+
+    if (requireReason || reasonPlaceholder) {
+        reasonWrap.style.display = '';
+        reasonInp.value          = '';
+        reasonInp.placeholder    = reasonPlaceholder || 'Enter reason…';
+    } else {
+        reasonWrap.style.display = 'none';
+    }
+
+    document.getElementById('confirm-ok').onclick = async () => {
+        const reason = reasonInp ? reasonInp.value.trim() : '';
+        if (requireReason && !reason) {
+            reasonInp.style.borderColor = '#dc2626';
+            reasonInp.focus();
+            return;
+        }
+        closeConfirm(null);
+        if (_rejectCallback) { await _rejectCallback(reason); _rejectCallback = null; }
+        else if (directCallback) await directCallback();
+    };
+
+    document.getElementById('confirm-overlay').classList.add('open');
+    if (requireReason) setTimeout(() => reasonInp?.focus(), 150);
 }
 
 function closeConfirm(e) {
     if (e && e.target !== document.getElementById('confirm-overlay')) return;
     document.getElementById('confirm-overlay').classList.remove('open');
-    confirmCallback = null;
+    _rejectCallback = null;
+    const inp = document.getElementById('confirm-reason-input');
+    if (inp) { inp.value = ''; inp.style.borderColor = ''; }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -351,16 +388,13 @@ function encodeDate(dateStr) {
     return String(dateStr).split('T')[0];
 }
 
-// Fix: parse date without timezone conversion (avoids Friday instead of Saturday bug)
 function fmtDate(str) {
     if (!str) return '—';
-    const s = String(str).split('T')[0]; // yyyy-mm-dd
+    const s   = String(str).split('T')[0];
     const [y, m, d] = s.split('-').map(Number);
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     return `${String(d).padStart(2,'0')} ${months[m-1]} ${y}`;
 }
-
-// Same as fmtDate — used to show meeting date (Saturday)
 function fmtDateSat(str) { return fmtDate(str); }
 
 function esc(str) {
