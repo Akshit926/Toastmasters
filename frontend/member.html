@@ -3,21 +3,29 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Wakad Toastmasters Club Member Portal — Login with your Customer ID to view your membership details and assigned roles."/>
-  <title>Member Portal — Wakad Toastmasters</title>
+  <meta name="description" content="Wakad Toastmasters Club Member Portal - Login with your Customer ID to view your membership details and assigned roles."/>
+  <title>Member Portal - Wakad Toastmasters</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="dashboard.css"/>
 </head>
 <body class="member-page">
-
-  <!-- ── LOGIN SCREEN ──────────────────────────────────────── -->
   <div id="login-screen" class="login-screen">
+    <header class="member-public-header">
+      <a href="index.html" class="member-public-brand">
+        <img src="tm-logo.png" alt="Toastmasters Logo"/>
+        <span>
+          <strong>Wakad Toastmasters</strong>
+          <small>Area C2 - District 125</small>
+        </span>
+      </a>
+      <a href="access.html" class="btn-ghost">Member Access</a>
+    </header>
     <div class="login-card">
       <div class="login-brand">
         <img src="tm-logo.png" alt="Toastmasters Logo" class="login-logo"/>
         <h1>Member Portal</h1>
-        <p>Wakad Toastmasters Club</p>
+        <p>Sign in to view your profile and meeting roles.</p>
       </div>
 
       <div class="form-group">
@@ -38,22 +46,22 @@
         Sign In
       </button>
 
-      <a href="index.html" class="back-link">← Back to Website</a>
+      <a href="index.html" class="back-link">Back to Website</a>
     </div>
-
-    <!-- decorative blobs -->
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
   </div>
-
-  <!-- ── DASHBOARD SCREEN ──────────────────────────────────── -->
   <div id="dashboard-screen" style="display:none">
 
     <header class="member-header">
       <div class="member-header-inner">
-        <img src="tm-logo.png" alt="Logo" class="header-logo-sm"/>
-        <span class="brand-title">Wakad Toastmasters</span>
+        <a href="index.html" class="member-dashboard-brand">
+          <img src="tm-logo.png" alt="Logo" class="header-logo-sm"/>
+          <span>
+            <strong>Wakad Toastmasters</strong>
+            <small>Member Portal</small>
+          </span>
+        </a>
         <div style="flex:1"></div>
+        <a href="roles.html" class="btn-ghost member-header-link">Role Allocation</a>
         <button class="btn-ghost" onclick="doLogout()">
           <svg viewBox="0 0 24 24"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
           Sign Out
@@ -62,18 +70,20 @@
     </header>
 
     <div class="member-dashboard">
+      <section class="member-dashboard-hero">
+        <span class="member-eyebrow">Member Dashboard</span>
+        <h1>Your Toastmasters Snapshot</h1>
+        <p>Track your assigned roles, upcoming sessions, and club participation from one place.</p>
+      </section>
 
-      <!-- Profile card -->
       <div class="profile-card">
         <div class="avatar" id="member-avatar">A</div>
         <div class="profile-info">
-          <h2 id="member-display-name">—</h2>
-          <span class="badge-member" id="member-display-id">—</span>
-          <p class="joined-date" id="member-joined">Joined —</p>
+          <h2 id="member-display-name">-</h2>
+          <span class="badge-member" id="member-display-id">-</span>
+          <p class="joined-date" id="member-joined">Joined -</p>
         </div>
       </div>
-
-      <!-- Stats Row -->
       <div class="stats-row">
         <div class="stat-card">
           <span class="stat-num" id="m-stat-roles">0</span>
@@ -84,8 +94,6 @@
           <span class="stat-label">Upcoming Sessions</span>
         </div>
       </div>
-
-      <!-- Roles Table -->
       <div class="section-card">
         <h3 class="section-card-title">My Assigned Roles</h3>
         <div class="table-wrapper">
@@ -103,8 +111,6 @@
           </table>
         </div>
       </div>
-
-      <!-- Info cards -->
       <div class="info-grid">
         <div class="info-card">
           <h4>What is Toastmasters?</h4>
@@ -112,7 +118,7 @@
         </div>
         <div class="info-card">
           <h4>Meeting Schedule</h4>
-          <p>Wakad Toastmasters meets every <strong>2nd &amp; 4th Saturday</strong> of the month. Check the website for exact timings and venue details.</p>
+          <p>Wakad Toastmasters meets every <strong>Saturday</strong> of the month. Check the website for exact timings and venue details.</p>
         </div>
         <div class="info-card">
           <h4>Need Help?</h4>

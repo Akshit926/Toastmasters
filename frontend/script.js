@@ -70,12 +70,12 @@ if (!currentTheme) {
 }
 html.setAttribute('data-theme', currentTheme);
 if (themeToggleBtn) {
-    themeToggleBtn.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+    themeToggleBtn.textContent = currentTheme === 'dark' ? 'Light' : 'Dark';
     themeToggleBtn.addEventListener('click', () => {
         const nextTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         html.setAttribute('data-theme', nextTheme);
         localStorage.setItem('tm_theme', nextTheme);
-        themeToggleBtn.textContent = nextTheme === 'dark' ? '☀️' : '🌙';
+        themeToggleBtn.textContent = nextTheme === 'dark' ? 'Light' : 'Dark';
     });
 }
 

@@ -27,7 +27,7 @@ app.listen(PORT, async () => {
 });
 
 app.get('/', (req, res) => {
-  res.send('Backend is working 🚀');
+  res.send('Backend is working');
 });
 
 const { sendRoleNotificationEmail } = require('./services/emailService');

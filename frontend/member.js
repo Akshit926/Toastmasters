@@ -35,7 +35,7 @@ async function doLogin() {
         <svg viewBox="0 0 24 24" style="width:16px;height:16px;animation:spin 1s linear infinite">
             <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
         </svg>
-        Signing in…`;
+        Signing in...`;
 
     try {
         const res  = await fetch(`${API}/auth/login`, {
@@ -52,7 +52,7 @@ async function doLogin() {
             renderDashboard(data.member);
         }
     } catch (err) {
-        showLoginError('Could not reach server. Is the backend running on port 5000?');
+        showLoginError('Could not reach server. Is the backend running on port 5001?');
         console.error(err);
     } finally {
         btn.disabled    = false;
@@ -109,7 +109,7 @@ function renderRolesTable(roles) {
 
         return `<tr>
             <td><strong>${escHtml(r.role)}</strong></td>
-            <td class="date-text">${r.date ? formatDate(r.date) : '—'}</td>
+            <td class="date-text">${r.date ? formatDate(r.date) : '-'}</td>
             <td><span class="status-pill ${statusClass}">${statusLabel}</span></td>
         </tr>`;
     }).join('');
@@ -119,7 +119,7 @@ function renderRolesTable(roles) {
 function doLogout() {
     sessionStorage.removeItem('tm_member');
     document.getElementById('dashboard-screen').style.display = 'none';
-    document.getElementById('login-screen').style.display     = 'flex';
+    document.getElementById('login-screen').style.display     = 'grid';
     document.getElementById('login-customer-id').value        = '';
     document.getElementById('login-error').style.display      = 'none';
     setTimeout(() => document.getElementById('login-customer-id').focus(), 100);
@@ -128,7 +128,7 @@ function doLogout() {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function showLoginError(msg) {
     const el = document.getElementById('login-error');
-    el.textContent   = '⚠ ' + msg;
+    el.textContent   = msg;
     el.style.display = 'block';
     // Shake animation
     el.style.animation = 'none';
@@ -137,7 +137,7 @@ function showLoginError(msg) {
 }
 
 function formatDate(str) {
-    if (!str) return '—';
+    if (!str) return '-';
     // Parse locally to avoid UTC midnight timezone shift (shows Friday instead of Saturday)
     const s = String(str).split('T')[0]; // yyyy-mm-dd
     const [y, m, d] = s.split('-').map(Number);

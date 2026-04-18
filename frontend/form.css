@@ -1,118 +1,224 @@
-:root {
-    --bg-primary: #fff;
-    --bg-secondary: #f5f5f5;
-    --text-main: #333;
-    --text-muted: #666;
-    --border-color: #ccc;
-    --card-bg: #ffffff;
-    --blue: #004165;
-    --maroon: #772432;
+.member-form-page {
+    background: var(--bg-body);
 }
 
-[data-theme="dark"] {
-    --bg-primary: #121212;
-    --bg-secondary: #1e1e1e;
-    --text-main: #e0e0e0;
-    --text-muted: #aaaaaa;
-    --border-color: #333333;
-    --card-bg: #1a1a1a;
-    --blue: #8ab4f8;
-    --maroon: #e67c8e;
+.form-shell {
+    min-height: calc(100vh - 73px);
 }
 
-* {
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
+.form-hero {
+    padding: 72px 0;
+    background:
+        linear-gradient(180deg, rgba(238,241,247,0.72), var(--bg-body) 340px),
+        var(--bg-body);
 }
 
-body {
-    background: var(--bg-secondary, #f5f5f5);
-    padding: 20px;
-    color: var(--text-main, #333);
-    transition: background 0.3s ease, color 0.3s ease;
+.form-hero-grid {
+    display: grid;
+    grid-template-columns: minmax(280px, 0.82fr) minmax(0, 1.18fr);
+    gap: 42px;
+    align-items: start;
 }
 
-.form-container {
-    max-width: 500px;
-    margin: auto;
-    background: var(--card-bg, #ffffff);
-    padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--border-color, #eee);
+.form-intro {
+    position: sticky;
+    top: 104px;
 }
 
-h1 {
-    text-align: center;
-    color: var(--blue, #333);
+.form-intro h1 {
+    font-size: clamp(2.1rem, 4vw, 3.4rem);
+    font-weight: 800;
+    color: var(--tm-blue);
+    margin-bottom: 18px;
 }
 
-p {
-    text-align: center;
-    color: var(--text-muted, #666);
-    margin-bottom: 20px;
+.form-intro p {
+    color: var(--text-muted);
+    line-height: 1.8;
+    font-size: 1rem;
+    max-width: 520px;
+}
+
+.form-highlights {
+    display: grid;
+    gap: 14px;
+    margin-top: 30px;
+}
+
+.form-highlights div {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--tm-red);
+    border-radius: var(--radius-sm);
+    padding: 18px 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.form-highlights strong {
+    display: block;
+    color: var(--tm-blue);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+}
+
+.form-highlights span {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    line-height: 1.55;
+}
+
+.form-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: 34px;
+}
+
+.form-card-header {
+    margin-bottom: 26px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+}
+
+.form-card-header h2 {
+    color: var(--tm-blue);
+    font-size: 1.35rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.form-card-header p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 18px;
 }
 
-label {
+.form-group label {
     display: block;
-    margin-bottom: 6px;
-    font-weight: 600;
-    color: var(--text-main, #333);
+    margin-bottom: 7px;
+    color: var(--text-primary);
+    font-size: 0.88rem;
+    font-weight: 700;
 }
 
-input,
-textarea,
-select {
+.form-group input,
+.form-group textarea,
+.form-group select {
     width: 100%;
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid var(--border-color, #ccc);
-    background: var(--bg-primary, #fff);
-    color: var(--text-main, #333);
-    font-size: 14px;
-    transition: background 0.3s ease, color 0.3s ease;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
 }
 
-textarea {
+.form-group input,
+.form-group select {
+    min-height: 48px;
+    padding: 0 14px;
+}
+
+.form-group textarea {
+    min-height: 108px;
+    padding: 36px 14px 14px;
     resize: vertical;
-    min-height: 80px;
 }
 
-button {
-    width: 100%;
-    padding: 12px;
-    background: var(--blue, #004165);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
+.form-group input[type="file"] {
+    display: flex;
+    align-items: center;
+    padding: 11px 14px;
+    background: var(--bg-surface);
 }
 
-button:hover {
-    background: var(--maroon, #772432);
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: var(--tm-blue);
+    background: var(--bg-surface);
+    box-shadow: 0 0 0 4px rgba(0, 51, 102, 0.1);
 }
 
 .textarea-wrapper {
     position: relative;
 }
 
-textarea {
-    width: 100%;
-    padding: 10px;
-    box-sizing: border-box;
-}
-
 .counter {
     position: absolute;
-    top: 5px;
-    right: 10px;
-    font-size: 12px;
-    color: gray;
+    top: 10px;
+    right: 12px;
+    z-index: 1;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.form-submit {
+    width: 100%;
+    min-height: 50px;
+    margin-top: 4px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--tm-red);
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.98rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.form-submit:hover {
+    background: var(--tm-red-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(192, 57, 43, 0.28);
+}
+
+[data-theme="dark"] .form-highlights div,
+[data-theme="dark"] .form-card,
+[data-theme="dark"] .counter {
+    background: var(--bg-surface);
+}
+
+@media (max-width: 900px) {
+    .form-hero-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-intro {
+        position: static;
+    }
+}
+
+@media (max-width: 680px) {
+    .form-hero {
+        padding: 44px 0;
+    }
+
+    .form-card {
+        padding: 24px 18px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
 }

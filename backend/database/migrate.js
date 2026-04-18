@@ -133,17 +133,17 @@ async function migrate() {
         // ── 6. Ensure cancel_reason column exists (idempotent) ────────────────
         try {
             await db.execute(`ALTER TABLE member_roles ADD COLUMN cancel_reason TEXT DEFAULT NULL AFTER status`);
-            console.log('✅ cancel_reason column added to member_roles');
+            console.log('cancel_reason column added to member_roles');
         } catch (e) {
             if (e.code !== 'ER_DUP_FIELDNAME') throw e;
             // Column already exists — no action needed
         }
 
         const [[{ total }]] = await db.execute('SELECT COUNT(*) AS total FROM club_members');
-        console.log(`✅ DB migration done — ${total} club members ready`);
+        console.log(`DB migration done - ${total} club members ready`);
 
     } catch (err) {
-        console.error('❌ DB migration failed:', err.message);
+        console.error('DB migration failed:', err.message);
         // Don't crash the server — just log the error
     }
 }

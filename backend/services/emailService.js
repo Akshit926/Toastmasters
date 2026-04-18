@@ -94,10 +94,10 @@ const sendRoleNotificationEmail = async (
       <p style="color:#374151;font-weight:600;margin-top:28px">One-click action from email:</p>
       <div class="actions">
         <a class="btn btn-approve" href="${approveLink}">
-          ${isAllocation ? '✓ Approve Allocation' : '✓ Confirm Cancellation'}
+          ${isAllocation ? 'Approve Allocation' : 'Confirm Cancellation'}
         </a>
         <a class="btn btn-reject" href="${rejectLink}">
-          ${isAllocation ? '✕ Reject Request' : '✕ Keep Role Assigned'}
+          ${isAllocation ? 'Reject Request' : 'Keep Role Assigned'}
         </a>
       </div>
       <p style="color:#9ca3af;font-size:12px;margin-top:16px">Or manage this from the

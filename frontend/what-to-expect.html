@@ -26,8 +26,9 @@
                 <a href="index.html">Home</a>
                 <a href="what-to-expect.html">What to Expect</a>
                 <a href="roles.html">Role Allocation</a>
-                <a href="form.html" class="nav-btn">Member Form</a>
-                <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">🌙</button>
+                <a href="form.html" target="_blank" rel="noopener">Member Form</a>
+                <a href="access.html" target="_blank" rel="noopener" class="nav-btn nav-btn-access">Member Access</a>
+                <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">Dark</button>
             </div>
         </div>
     </nav>
@@ -257,7 +258,7 @@
                         <li><a href="index.html">Home</a></li>
                         <li><a href="what-to-expect.html">What to Expect</a></li>
                         <li><a href="roles.html">Role Allocation</a></li>
-                        <li><a href="form.html">Member Form</a></li>
+                        <li><a href="form.html" target="_blank" rel="noopener">Member Form</a></li>
                     </ul>
                 </div>
                 <div class="footer-links">
@@ -281,12 +282,12 @@
         const html = document.documentElement;
         const saved = localStorage.getItem('tm_theme') || 'light';
         html.setAttribute('data-theme', saved);
-        toggleBtn.textContent = saved === 'dark' ? '☀️' : '🌙';
+        toggleBtn.textContent = saved === 'dark' ? 'Light' : 'Dark';
         toggleBtn.addEventListener('click', () => {
             const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             html.setAttribute('data-theme', next);
             localStorage.setItem('tm_theme', next);
-            toggleBtn.textContent = next === 'dark' ? '☀️' : '🌙';
+            toggleBtn.textContent = next === 'dark' ? 'Light' : 'Dark';
         });
     </script>
 

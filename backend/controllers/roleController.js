@@ -132,7 +132,7 @@ exports.approveAllocate = async (req, res) => {
         if (req.method === 'PATCH') {
             return res.json({ success: true, message: 'Role approved' });
         }
-        res.status(200).send(emailPage('✅ Role Allocation Approved!', '#004165',
+        res.status(200).send(emailPage('Role Allocation Approved', '#004165',
             'Status updated to <strong>Assigned</strong>. The member has been confirmed for this role.'));
     } catch (e) {
         console.error('approveAllocate error:', e);
@@ -153,7 +153,7 @@ exports.approveCancel = async (req, res) => {
         if (req.method === 'PATCH') {
             return res.json({ success: true, message: 'Cancellation approved' });
         }
-        res.status(200).send(emailPage('✅ Cancellation Confirmed!', '#772432',
+        res.status(200).send(emailPage('Cancellation Confirmed', '#772432',
             'Status updated to <strong>Cancelled</strong>. The role is now available again.'));
     } catch (e) {
         console.error('approveCancel error:', e);
@@ -174,7 +174,7 @@ exports.rejectAllocate = async (req, res) => {
         if (req.method === 'PATCH') {
             return res.json({ success: true, message: 'Allocation rejected' });
         }
-        res.status(200).send(emailPage('✗ Role Request Rejected', '#b94a48',
+        res.status(200).send(emailPage('Role Request Rejected', '#b94a48',
             `Status updated to <strong>Cancelled</strong>. Reason: ${reason || 'Rejected by admin'}`));
     } catch (e) {
         console.error('rejectAllocate error:', e);

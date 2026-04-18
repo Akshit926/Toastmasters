@@ -40,7 +40,7 @@ async function loadMembers() {
         updateStats(allMembers);
     } catch {
         tbody.innerHTML = `<tr><td colspan="5" class="empty-row" style="color:var(--danger)">
-            ⚠ Could not connect to server. Is the backend running on port 5001?</td></tr>`;
+            Could not connect to server. Is the backend running on port 5001?</td></tr>`;
     }
 }
 
@@ -58,8 +58,8 @@ function renderTable(members) {
             <td class="date-text">${fmtDate(m.created_at)}</td>
             <td>
                 <div class="actions-cell">
-                    <button class="btn-icon btn-edit"   title="Edit"   onclick="openEditModal(${m.id},'${esc(m.customer_id)}','${esc(m.member_name)}')">✏</button>
-                    <button class="btn-icon btn-delete" title="Delete" onclick="deleteMember(${m.id},'${esc(m.member_name)}')">✕</button>
+                    <button class="btn-sm-edit" title="Edit" onclick="openEditModal(${m.id},'${esc(m.customer_id)}','${esc(m.member_name)}')">Edit</button>
+                    <button class="btn-sm-del" title="Delete" onclick="deleteMember(${m.id},'${esc(m.member_name)}')">Delete</button>
                 </div>
             </td>
         </tr>`).join('');
@@ -140,7 +140,7 @@ async function saveMember() {
         });
         const data = await res.json();
         if (!res.ok) { showModalError(data.error || 'An error occurred.'); }
-        else { closeModal(null); showToast(editingId ? '✅ Member updated!' : '✅ Member added!', 'ok'); loadMembers(); }
+        else { closeModal(null); showToast(editingId ? 'Member updated.' : 'Member added.', 'ok'); loadMembers(); }
     } catch { showModalError('Network error — is the server running?'); }
     finally { btn.disabled = false; btn.textContent = editingId ? 'Save Changes' : 'Add Member'; }
 }
@@ -151,7 +151,7 @@ async function deleteMember(id, name) {
         const res  = await fetch(`${API}/${id}`, { method: 'DELETE' });
         const data = await res.json();
         if (!res.ok) showToast(data.error || 'Delete failed.', 'error');
-        else { showToast(`🗑 ${name} removed.`, 'success'); loadMembers(); }
+        else { showToast(`${name} removed.`, 'success'); loadMembers(); }
     } catch { showToast('Network error.', 'error'); }
 }
 
@@ -178,7 +178,7 @@ async function loadRoles() {
 
         renderRolesTable();
     } catch {
-        tbody.innerHTML = `<tr><td colspan="6" class="empty-row" style="color:var(--danger)">⚠ Could not load roles. Is the server running?</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="empty-row" style="color:var(--danger)">Could not load roles. Is the server running?</td></tr>`;
     }
 }
 
@@ -203,7 +203,7 @@ function renderRolesTable() {
         (r.customer_id || '').toLowerCase().includes(q)
     );
     if (rows.length === 0) {
-        const msg = roleTab === 'pending' ? 'No pending requests — all caught up! ✅' : 'No role assignments found.';
+        const msg = roleTab === 'pending' ? 'No pending requests.' : 'No role assignments found.';
         tbody.innerHTML = `<tr><td colspan="6" class="empty-row">${msg}</td></tr>`;
         return;
     }
@@ -226,16 +226,16 @@ function renderRolesTable() {
 function buildRoleActions(r) {
     const d = encodeDate(r.meeting_date);
     if (r.status === 'Pending_Allocation') return `
-        <button class="btn-approve" onclick="approveAllocation(${r.member_id},${r.role_id},'${d}',this)">✓ Approve</button>
-        <button class="btn-reject"  onclick="openRejectModal(${r.id},${r.member_id},${r.role_id},'${d}','${esc(r.member_name)}','allocation')">✕ Reject</button>`;
+        <button class="btn-approve" onclick="approveAllocation(${r.member_id},${r.role_id},'${d}',this)">Approve</button>
+        <button class="btn-reject"  onclick="openRejectModal(${r.id},${r.member_id},${r.role_id},'${d}','${esc(r.member_name)}','allocation')">Reject</button>`;
     if (r.status === 'Pending_Cancel') return `
-        <button class="btn-approve" onclick="approveCancel(${r.member_id},${r.role_id},'${d}',this)">✓ Confirm Cancel</button>
-        <button class="btn-reject"  onclick="denyCancel(${r.member_id},${r.role_id},'${d}','${esc(r.member_name)}',this)">✕ Keep Role</button>`;
+        <button class="btn-approve" onclick="approveCancel(${r.member_id},${r.role_id},'${d}',this)">Confirm Cancel</button>
+        <button class="btn-reject"  onclick="denyCancel(${r.member_id},${r.role_id},'${d}','${esc(r.member_name)}',this)">Keep Role</button>`;
     if (r.status === 'Assigned') return `
         <button class="btn-reject"  onclick="openRejectModal(${r.id},${r.member_id},${r.role_id},'${d}','${esc(r.member_name)}','force')">Force Cancel</button>
-        <button class="btn-delete-role" onclick="deleteRoleRow(${r.id},'${esc(r.member_name)}','${esc(r.role_name)}')">🗑 Delete</button>`;
+        <button class="btn-delete-role" onclick="deleteRoleRow(${r.id},'${esc(r.member_name)}','${esc(r.role_name)}')">Delete</button>`;
     if (r.status === 'Cancelled') return `
-        <button class="btn-delete-role" onclick="deleteRoleRow(${r.id},'${esc(r.member_name)}','${esc(r.role_name)}')">🗑 Delete</button>`;
+        <button class="btn-delete-role" onclick="deleteRoleRow(${r.id},'${esc(r.member_name)}','${esc(r.role_name)}')">Delete</button>`;
     return '—';
 }
 
@@ -248,9 +248,9 @@ async function approveAllocation(memberId, roleId, date, btn) {
             body: JSON.stringify({ member_id: memberId, role_id: roleId, meeting_date: date })
         });
         const data = await res.json();
-        if (res.ok) { showToast('✅ Role allocation approved!', 'success'); loadRoles(); }
-        else        { showToast(data.error || 'Approval failed.', 'error'); btn.disabled = false; btn.textContent = '✓ Approve'; }
-    } catch { showToast('Network error.', 'error'); btn.disabled = false; btn.textContent = '✓ Approve'; }
+        if (res.ok) { showToast('Role allocation approved.', 'success'); loadRoles(); }
+        else        { showToast(data.error || 'Approval failed.', 'error'); btn.disabled = false; btn.textContent = 'Approve'; }
+    } catch { showToast('Network error.', 'error'); btn.disabled = false; btn.textContent = 'Approve'; }
 }
 
 // ── Approve cancellation ──────────────────────────────────────────────────────
@@ -262,9 +262,9 @@ async function approveCancel(memberId, roleId, date, btn) {
             body: JSON.stringify({ member_id: memberId, role_id: roleId, meeting_date: date })
         });
         const data = await res.json();
-        if (res.ok) { showToast('✅ Cancellation confirmed!', 'success'); loadRoles(); }
-        else        { showToast(data.error || 'Failed.', 'error'); btn.disabled = false; btn.textContent = '✓ Confirm Cancel'; }
-    } catch { showToast('Network error.', 'error'); btn.disabled = false; btn.textContent = '✓ Confirm Cancel'; }
+        if (res.ok) { showToast('Cancellation confirmed.', 'success'); loadRoles(); }
+        else        { showToast(data.error || 'Failed.', 'error'); btn.disabled = false; btn.textContent = 'Confirm Cancel'; }
+    } catch { showToast('Network error.', 'error'); btn.disabled = false; btn.textContent = 'Confirm Cancel'; }
 }
 
 // ── Deny cancellation (keep role as Assigned) ─────────────────────────────────
@@ -275,9 +275,9 @@ async function denyCancel(memberId, roleId, date, name, btn) {
             method: 'PATCH', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ member_id: memberId, role_id: roleId, meeting_date: date })
         });
-        if (res.ok) { showToast(`✅ Cancellation denied — ${name} keeps the role.`, 'success'); loadRoles(); }
-        else        { showToast('Failed.', 'error'); btn.disabled = false; btn.textContent = '✕ Keep Role'; }
-    } catch { showToast('Network error.', 'error'); btn.disabled = false; btn.textContent = '✕ Keep Role'; }
+        if (res.ok) { showToast(`Cancellation denied - ${name} keeps the role.`, 'success'); loadRoles(); }
+        else        { showToast('Failed.', 'error'); btn.disabled = false; btn.textContent = 'Keep Role'; }
+    } catch { showToast('Network error.', 'error'); btn.disabled = false; btn.textContent = 'Keep Role'; }
 }
 
 // ── Hard-delete a role row ────────────────────────────────────────────────────
@@ -288,7 +288,7 @@ async function deleteRoleRow(id, name, roleName) {
         null,  // no reason field needed
         async () => {
             const res = await fetch(`${ROLES_API}/${id}`, { method: 'DELETE' });
-            if (res.ok) { showToast('🗑 Record deleted.', 'success'); loadRoles(); }
+            if (res.ok) { showToast('Record deleted.', 'success'); loadRoles(); }
             else        { showToast('Delete failed.', 'error'); }
         }
     );
@@ -321,7 +321,7 @@ function openRejectModal(rowId, memberId, roleId, date, name, mode) {
             });
         }
         if (res.ok) {
-            showToast(isForce ? '🗑 Role force-cancelled.' : '🗑 Allocation rejected.', 'success');
+            showToast(isForce ? 'Role force-cancelled.' : 'Allocation rejected.', 'success');
             loadRoles();
         } else {
             showToast('Action failed.', 'error');

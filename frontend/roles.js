@@ -3,20 +3,20 @@
 const API_BASE = 'http://localhost:5001/api';
 
 const ROLE_ICONS = {
-    'Toastmaster of the Day': '🎙️',
-    'Table Topics Master':    '💬',
-    'General Evaluator':      '📋',
-    'Ah-Counter':             '🔢',
-    'Grammarian':             '📖',
-    'Timer':                  '⏱️',
-    'Speaker 1':              '🗣️',
-    'Speaker 2':              '🗣️',
-    'Speaker 3':              '🗣️',
-    'Speaker 4':              '🗣️',
-    'Evaluator 1':            '✏️',
-    'Evaluator 2':            '✏️',
-    'Evaluator 3':            '✏️',
-    'Evaluator 4':            '✏️',
+    'Toastmaster of the Day': 'TM',
+    'Table Topics Master':    'TT',
+    'General Evaluator':      'GE',
+    'Ah-Counter':             'AC',
+    'Grammarian':             'GR',
+    'Timer':                  'TI',
+    'Speaker 1':              'S1',
+    'Speaker 2':              'S2',
+    'Speaker 3':              'S3',
+    'Speaker 4':              'S4',
+    'Evaluator 1':            'E1',
+    'Evaluator 2':            'E2',
+    'Evaluator 3':            'E3',
+    'Evaluator 4':            'E4',
 };
 
 const DEFAULT_ROLE_NAMES = [
@@ -148,7 +148,7 @@ async function loadRolesForMeeting() {
         const res  = await fetch(`${API_BASE}/roles/all`);
         allRoleData = await res.json();
     } catch (e) {
-        dashboard.innerHTML = '<p class="roles-error">⚠ Cannot connect to backend. Is the server running on port 5001?</p>';
+        dashboard.innerHTML = '<p class="roles-error">Cannot connect to backend. Is the server running on port 5001?</p>';
         return;
     }
 
@@ -166,7 +166,7 @@ function renderRoleBoard() {
         (r.status === 'Pending_Allocation' || r.status === 'Assigned')
     );
 
-    // Build map: role_name → assignment
+    // Build map: role_name to assignment
     const takenMap = {};
     forDate.forEach(r => {
         if (!takenMap[r.role_name]) takenMap[r.role_name] = r;
@@ -224,7 +224,7 @@ function renderRoleBoard() {
                     <div class="member-av member-av-taken">${(assignment.member_name||'?').charAt(0)}</div>
                     <div>
                         <div class="taken-name">${esc(assignment.member_name)}</div>
-                        <div class="taken-status taken-confirmed">Confirmed ✓</div>
+                        <div class="taken-status taken-confirmed">Confirmed</div>
                     </div>
                 </div>`;
             actionsHTML = isMe
