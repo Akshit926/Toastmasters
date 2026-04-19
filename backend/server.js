@@ -18,6 +18,14 @@ app.use('/api/contacts', require('./routes/contacts'));
 app.use('/api/roles', require('./routes/roles'));
 app.use('/api/club-members', require('./routes/clubMembers'));
 
+// Serve static frontend files
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
+
+// Catch-all handler: send all non-API requests to index.html (for SPA routing)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
+});
+
 const PORT = process.env.PORT || 5001;
 const migrate = require('./database/migrate');
 

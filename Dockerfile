@@ -20,6 +20,9 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copy the rest of the backend source
 COPY backend/ ./
 
+# Copy the frontend static files
+COPY frontend/ ./frontend/
+
 # Cloud Run injects PORT automatically; default to 8080
 EXPOSE 8080
 

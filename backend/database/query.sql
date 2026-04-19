@@ -49,7 +49,13 @@ INSERT IGNORE INTO roles (role_name) VALUES
 ('Timer'), 
 ('Speaker'), 
 ('Evaluator');
+ALTER TABLE members 
+ADD COLUMN introduction TEXT, 
+ADD COLUMN why_join TEXT, 
+ADD COLUMN source VARCHAR(255), 
+ADD COLUMN preferred_role VARCHAR(100), 
+ADD COLUMN queries TEXT;
 
-SELECT 'Tables Created Successfully' AS Status;
-SHOW TABLES;
-SELECT * FROM roles;
+ALTER TABLE member_roles MODIFY COLUMN status VARCHAR(50) DEFAULT 'Assigned';
+
+

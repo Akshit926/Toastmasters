@@ -45,7 +45,7 @@ if (contactBtn) {
         try {
         const _apiBase = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             ? 'http://localhost:8080'
-            : 'https://wakadtoastmasterclub-263491062829.asia-south1.run.app';
+            : '';
 
             const response = await fetch(`${_apiBase}/api/contacts`, {
                 method: 'POST',
