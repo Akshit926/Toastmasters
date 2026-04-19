@@ -1,7 +1,5 @@
+// dotenv is loaded once in server.js — no need to load here
 const nodemailer = require('nodemailer');
-const dotenv     = require('dotenv');
-const path       = require('path');
-dotenv.config({ path: path.join(__dirname, '..', '..', '.env') });
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',

@@ -22,17 +22,17 @@ const PORT = process.env.PORT || 5001;
 const migrate = require('./database/migrate');
 
 app.listen(PORT, async () => {
-  console.log(`Server running on port ${PORT}`);
-  await migrate();  // auto-create club_members table + seed 36 members
+    console.log(`Server running on port ${PORT}`);
+    await migrate();  // auto-create club_members table + seed 36 members
 });
 
 app.get('/', (req, res) => {
-  res.send('Backend is working');
+    res.send('Backend is working');
 });
 
 const { sendRoleNotificationEmail } = require('./services/emailService');
 
 app.get('/test-email', async (req, res) => {
-  await sendRoleNotificationEmail("Test User", "President", "Assigned", "Today");
-  res.send("Test email triggered");
+    await sendRoleNotificationEmail("Test User", "President", "Assigned", "Today");
+    res.send("Test email triggered");
 });

@@ -1,0 +1,26 @@
+# Git
+.git
+.gitignore
+
+# Env files — NEVER bake secrets into the image
+.env
+.env.*
+!.env.example
+
+# Frontend (not needed in backend container)
+frontend/
+
+# Backend node_modules (deps are installed fresh in the Docker build)
+backend/node_modules/
+
+# Logs & OS noise
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/
+
+# README
+README.md
