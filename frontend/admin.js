@@ -1,6 +1,9 @@
-// ── Config ───────────────────────────────────────────────────────────────────
-const API       = 'http://localhost:5001/api/club-members';
-const ROLES_API = 'http://localhost:5001/api/roles';
+// ── API Base URL — auto-switches between local dev and Cloud Run ──────────────
+const BASE_URL  = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:8080'
+    : 'https://wakadtoastmasterclub-263491062829.asia-south1.run.app';
+const API       = `${BASE_URL}/api/club-members`;
+const ROLES_API = `${BASE_URL}/api/roles`;
 
 // ── State ─────────────────────────────────────────────────────────────────────
 let allMembers = [];
@@ -40,7 +43,7 @@ async function loadMembers() {
         updateStats(allMembers);
     } catch {
         tbody.innerHTML = `<tr><td colspan="5" class="empty-row" style="color:var(--danger)">
-            Could not connect to server. Is the backend running on port 5001?</td></tr>`;
+            Could not connect to server. Is the backend running?</td></tr>`;
     }
 }
 

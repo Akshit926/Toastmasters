@@ -32,7 +32,11 @@ if (form) {
         };
 
         try {
-            const response = await fetch('http://localhost:5001/api/members/register', {
+        const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:8080'
+            : 'https://wakadtoastmasterclub-263491062829.asia-south1.run.app';
+
+            const response = await fetch(`${API_BASE}/api/members/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
@@ -48,7 +52,7 @@ if (form) {
             }
         } catch (err) {
             console.error(err);
-            alert('Backend not reachable! Ensure the backend is running with "npm run dev".');
+            alert('Could not reach the server. Please try again.');
         }
     });
 }

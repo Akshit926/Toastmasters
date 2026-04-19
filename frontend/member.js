@@ -1,5 +1,8 @@
-// ── Config ───────────────────────────────────────────────────────────────────
-const API = 'http://localhost:5001/api/club-members';
+// ── API Base URL — auto-switches between local dev and Cloud Run ──────────────
+const API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:8080'
+    : 'https://wakadtoastmasterclub-263491062829.asia-south1.run.app'
+) + '/api/club-members';
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -52,7 +55,7 @@ async function doLogin() {
             renderDashboard(data.member);
         }
     } catch (err) {
-        showLoginError('Could not reach server. Is the backend running on port 5001?');
+        showLoginError('Could not reach server. Please try again.');
         console.error(err);
     } finally {
         btn.disabled    = false;

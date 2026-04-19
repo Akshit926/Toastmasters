@@ -1,6 +1,9 @@
 /* roles.js — complete rewrite with login flow + backend-driven role board */
 
-const API_BASE = 'http://localhost:5001/api';
+// ── API Base URL — auto-switches between local dev and Cloud Run ──────────────
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:8080/api'
+    : 'https://wakadtoastmasterclub-263491062829.asia-south1.run.app/api';
 
 const ROLE_ICONS = {
     'Toastmaster of the Day': 'TM',
@@ -82,7 +85,7 @@ async function handleLogin() {
         loggedInMember = data.member;
         showRoleBoard();
     } catch (e) {
-        showLoginError('Cannot connect to server. Make sure the backend is running on port 5001.');
+        showLoginError('Cannot connect to server. Please try again.');
     } finally {
         btn.disabled  = false;
         btn.innerHTML = '<span>Access Role Board</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
@@ -148,7 +151,7 @@ async function loadRolesForMeeting() {
         const res  = await fetch(`${API_BASE}/roles/all`);
         allRoleData = await res.json();
     } catch (e) {
-        dashboard.innerHTML = '<p class="roles-error">Cannot connect to backend. Is the server running on port 5001?</p>';
+        dashboard.innerHTML = '<p class="roles-error">Cannot connect to backend. Please try again.</p>';
         return;
     }
 
@@ -304,7 +307,7 @@ async function submitClaim() {
     } catch (e) {
         showModalView('claim');
         btn.disabled = false;
-        showInlineError('Network error — is the backend running?');
+        showInlineError('Network error — could not reach the server.');
     }
 }
 
@@ -359,7 +362,7 @@ async function submitCancel() {
     } catch (e) {
         showModalView('cancel');
         btn.disabled = false;
-        alert('Network error — is the backend running?');
+        alert('Network error — could not reach the server.');
     }
 }
 
