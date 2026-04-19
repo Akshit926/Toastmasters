@@ -7,8 +7,7 @@
 .env.*
 !.env.example
 
-
-
+# Force rebuild - frontend now included
 # Backend node_modules (deps are installed fresh in the Docker build)
 backend/node_modules/
 
