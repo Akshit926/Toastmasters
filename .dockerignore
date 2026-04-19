@@ -7,8 +7,7 @@
 .env.*
 !.env.example
 
-# Frontend (not needed in backend container)
-frontend/
+
 
 # Backend node_modules (deps are installed fresh in the Docker build)
 backend/node_modules/
