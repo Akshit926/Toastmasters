@@ -2,8 +2,8 @@
 
 // ── API Base URL — auto-switches between local dev and Cloud Run ──────────────
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:8080/api'
-    : '/api';
+    ? 'http://localhost:5001/api'
+    : 'https://wakadtoastmasterclub-263491062829.asia-south1.run.app/api';
 
 const ROLE_ICONS = {
     'Toastmaster of the Day': 'TM',
