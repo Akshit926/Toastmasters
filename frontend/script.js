@@ -2,6 +2,66 @@ const navbar = document.querySelector('.navbar');
 const navLinks = document.querySelectorAll('.nav-links a');
 const sections = document.querySelectorAll('section[id], header[id]');
 
+// ============================================
+// MOBILE HAMBURGER MENU
+// ============================================
+const hamburgerBtn = document.getElementById('hamburgerBtn');
+const navLinksContainer = document.getElementById('navLinks');
+const mobileOverlay = document.getElementById('mobileOverlay');
+
+function openMobileMenu() {
+    hamburgerBtn.classList.add('active');
+    navLinksContainer.classList.add('mobile-open');
+    if (mobileOverlay) mobileOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeMobileMenu() {
+    hamburgerBtn.classList.remove('active');
+    navLinksContainer.classList.remove('mobile-open');
+    if (mobileOverlay) mobileOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+if (hamburgerBtn) {
+    hamburgerBtn.addEventListener('click', () => {
+        if (navLinksContainer.classList.contains('mobile-open')) {
+            closeMobileMenu();
+        } else {
+            openMobileMenu();
+        }
+    });
+}
+
+if (mobileOverlay) {
+    mobileOverlay.addEventListener('click', closeMobileMenu);
+}
+
+// Close mobile menu when a nav link is clicked
+if (navLinksContainer) {
+    navLinksContainer.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                closeMobileMenu();
+            }
+        });
+    });
+}
+
+// Close mobile menu on Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && navLinksContainer && navLinksContainer.classList.contains('mobile-open')) {
+        closeMobileMenu();
+    }
+});
+
+// Close mobile menu if window is resized above mobile breakpoint
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+        closeMobileMenu();
+    }
+});
+
 function toggleFaq(button) {
     const item = button.closest('.faq-item');
     const isOpen = item.classList.contains('open');
